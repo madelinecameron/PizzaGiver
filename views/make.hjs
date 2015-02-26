@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Pizza For You!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+<body>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#getStores').click(function() {
+                requestStores($('#address').val(), $('#zip').val(), $('#town').val());
+            });
+        });
+		var socket = io();
+        function requestStores(address, zip, town) {
+            socket.emit('getStores', { address: address, zip: zip, town: town });
+        }
+
+        socket.on('giveStores', function(data) {
+			$('#displayPanel').css('display', 'block');
+            $('#storeListings').html(data);
+        });
+		
+		function gotClicked(id, className) { 
+			if($('#' + id).parent().hasClass('btn-default') && !$('.' + className)[0]) {
+				$('#' + id).addClass(className).parent().css('background-color', '#6495ed').removeClass('btn-default')
+			}
+			else {
+				if($('.' + className)[0].id == id) {
+					$('#' + id).removeClass(className).parent().css('background-color', '').addClass('btn-default');
+				}
+			}
+		}
+    </script>
+    <div class="container panel panel-default">
+        <div class="row">
+            <div class="col-md-8">
+                <form>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" class="form-control" id="address" placeholder="Address">
+                    </div>
+                    <div class="form-group">
+                        <label for="town">Town</label>
+                        <input type="text" class="form-control" id="town" placeholder="Town">
+                    </div>
+                    <div class="form-group">
+                        <label for="zip">Zip</label>
+                        <input type="text" class="form-control" id="zip" placeholder="Zip">
+                    </div>
+                    <button id="getStores" type="button" class="btn btn-default">Find a store!</button>
+                </form>
+            </div>
+        </div>
+		<br>
+		<div id="displayPanel" class="panel panel-default" style="display:none">
+			<div class="panel-heading">Stores near you:</div>
+			<ul id="storeListings" class="panel-body list-group">
+			</ul>
+		</div>
+		<div id="pizzaPanel" class="panel panel-default">
+			<div class="panel-heading">Pick a pizza!</div>
+			<ul id="storeListings" class="panel-body list-group">
+				<li class="container list-group-item btn-default"><div id="cheese" onclick="gotClicked(this.id, 'pizzaSelected')">Cheese</div></li>
+				<li class="container list-group-item btn-default"><div id="pepperoni" onclick="gotClicked(this.id, 'pizzaSelected')">Pepperoni</div></li>
+				<li class="container list-group-item btn-default"><div id="sausage" onclick="gotClicked(this.id, 'pizzaSelected')">Sausage</div></li>
+			</ul>
+		</div>
+		<div id="namePanel" class="panel panel-default">
+			<div class="panel-heading">Let's finish up!</div>
+			<form>
+				<div class="form-group">
+					<label for="name">Full name</label>
+					<input type="text" class="form-control" id="name" placeholder="Name">
+				</div>
+				<div class="form-group">
+					<label for="email">Email</label>
+					<input type="text" class="form-control" id="email" placeholder="Email">
+				</div>
+				<div class="form-group">
+					<label for="msg">Message to buyer</label>
+					<input type="text" class="form-control" id="msg" placeholder="Message">
+				</div>
+				<div class="form-group">
+					<label for="zip">Zip</label>
+					<input type="text" class="form-control" id="zip" placeholder="Zip">
+				</div>
+				<button id="getStores" type="button" class="btn btn-default">Find a store!</button>
+			</form>
+		</div>
+    </div>
+</body>
+</html>

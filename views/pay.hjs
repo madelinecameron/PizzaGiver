@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Pizza For Them!</title>
+</head>
+<body>
+    <div class="container">
+        <div class="col-md-4 col-md-push-8">
+            <div class="sidebar.affix">
+                Floating
+            </div>
+        </div>
+        <div class="row col-md-push-4">
+            <div class="col-md-8">
+                Store Location
+            </div>
+        </div>
+        <div class="row col-md-push-4">
+            <div class="col-md-8">
+                Pizza
+            </div>
+        </div>
+    </div>
+</body>
+</html>
