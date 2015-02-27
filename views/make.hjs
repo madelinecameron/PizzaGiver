@@ -21,15 +21,26 @@
             $('#getStores').click(function() {
                 requestStores($('#address').val(), $('#zip').val(), $('#town').val());
             });
+			$('#finalizeOrder').click(function() {
+				finalizeOrder($('.storeSelected').attr('id'), $('.pizzaSelected').attr('id'), $('#name').val(), $('#email').val(), $('#msg').val(), $('#address').val() + ',' + $('#town').val() + ',' + $('#zip').val())
+			})
         });
 		var socket = io();
         function requestStores(address, zip, town) {
             socket.emit('getStores', { address: address, zip: zip, town: town });
         }
+		
+		function finalizeOrder(storeId, pizzaId, name, email, msg, address) {
+			socket.emit('finalizeOrder', { storeId: storeId, pizzaId: pizzaId, name: name, email: email, msg: msg, address: address });
+		}
 
         socket.on('giveStores', function(data) {
 			$('#displayPanel').css('display', 'block');
             $('#storeListings').html(data);
+        });
+		
+		socket.on('orderFinalized', function(data) {
+            $('#orderUrl').html(data);
         });
 		
 		function gotClicked(id, className) { 
@@ -77,28 +88,24 @@
 				<li class="container list-group-item btn-default"><div id="sausage" onclick="gotClicked(this.id, 'pizzaSelected')">Sausage</div></li>
 			</ul>
 		</div>
-		<div id="namePanel" class="panel panel-default">
-			<div class="panel-heading">Let's finish up!</div>
-			<form>
-				<div class="form-group">
-					<label for="name">Full name</label>
-					<input type="text" class="form-control" id="name" placeholder="Name">
-				</div>
-				<div class="form-group">
-					<label for="email">Email</label>
-					<input type="text" class="form-control" id="email" placeholder="Email">
-				</div>
-				<div class="form-group">
-					<label for="msg">Message to buyer</label>
-					<input type="text" class="form-control" id="msg" placeholder="Message">
-				</div>
-				<div class="form-group">
-					<label for="zip">Zip</label>
-					<input type="text" class="form-control" id="zip" placeholder="Zip">
-				</div>
-				<button id="getStores" type="button" class="btn btn-default">Find a store!</button>
-			</form>
-		</div>
+		<br>
+		<form>
+			<div class="form-group">
+				<label for="name">Full name</label>
+				<input type="text" class="form-control" id="name" placeholder="Name">
+			</div>
+			<div class="form-group">
+				<label for="email">Email</label>
+				<input type="text" class="form-control" id="email" placeholder="Email">
+			</div>
+			<div class="form-group">
+				<label for="msg">Message to buyer</label>
+				<input type="text" class="form-control" id="msg" placeholder="Message">
+			</div>
+			<button id="finalizeOrder" type="button" class="btn btn-default">Finalize my order!</button>
+		</form>
+		<br>
+		<div id="orderUrl"></div>
     </div>
 </body>
 </html>
