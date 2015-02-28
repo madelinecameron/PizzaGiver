@@ -11,25 +11,12 @@ var dominos = require('dominos');
 var hogan = require('hjs');
 var mongoose = require('mongoose');
 var fs = require('fs');
-var shortid = require('shortid');
+mongoose.connect("mongodb://root:pizza@ds047911.mongolab.com:47911/pizzaforyou");
+var Order = require('../pizzaDB')(mongoose);
 
 /**
  * Get port from environment and store in Express.
  */
-var pizzaDB = mongoose.connect("mongodb://root:pizza@ds047911.mongolab.com:47911/pizzaforyou");
-console.log("Database connection successful!");
-
-var orderSchema = new mongoose.Schema({
-    _id: { type: String, unique: true },
-    pizzaId: { type: String, required: true },
-    storeId: { type: String, required: true },
-    address: { type: String, required: true },
-    name: { type: String, required: true },
-    message: { type: String, required: false, default: "Thank you! :)" },
-    email: { type: String, required: true }
-});
-
-var Order = mongoose.model('Orders', orderSchema);
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
@@ -71,9 +58,12 @@ io.on("connection", function(socket) {
                     var html = "";
                     var stores = storeData.result.Stores;
                     for (store in stores) {
-                        if (store.IsOpen && store.IsOnlineCapable && store.IsOnlineNow) {
+                        if (store.IsOpen) {
                             html += template.render(store);
                         }
+                    }
+                    if(html == "") {
+                        html = "<b>No stores are open or around! ):</b>";
                     }
                     console.log(html);
                 });
@@ -91,7 +81,7 @@ io.on("connection", function(socket) {
                     var template = hogan.compile(data.toString());
                     var stores = storeData.result.Stores;
                     stores.forEach(function (store) {
-                        if (store.IsOpen && store.IsOnlineCapable && store.IsOnlineNow) {
+                        if (store.IsOpen) {
                             html += template.render(store);
                         }
                     });
@@ -109,8 +99,10 @@ io.on("connection", function(socket) {
     });
 
     socket.on('finalizeOrder', function(data) {
+        console.log("HERE!");
+        console.log(data);
         Order.create({
-            _id: shortid.generate(),
+            orderId: shortid.generate(),
             pizzaId: data.pizzaId,
             storeId: data.storeId,
             address: data.address,
@@ -118,16 +110,16 @@ io.on("connection", function(socket) {
             message: data.msg,
             email: data.email
         }, function(err, order) {
-            console.log("Error: " + err);
-            console.log(order);
-            //socket.emit('orderFinalized', '<p>http://pizza.maddie.space/pay/' + order.orderId + '</p>');
+            if(err) {
+                console.log("Error: " + err);
+            }
+            else {
+                socket.emit('orderFinalized', '<p>http://pizza.maddie.space/pay/' + order.orderId + '</p>');
+            }
         });
     });
 });
 
-function compileStoreHTML(storeData) {
-    var rawHtml = ('');
-}
 function normalizePort(val) {
   var port = parseInt(val, 10);
 

@@ -25,7 +25,7 @@
 				finalizeOrder($('.storeSelected').attr('id'), $('.pizzaSelected').attr('id'), $('#name').val(), $('#email').val(), $('#msg').val(), $('#address').val() + ',' + $('#town').val() + ',' + $('#zip').val())
 			})
         });
-		var socket = io();
+		var socket = io('http://localhost:3000');
         function requestStores(address, zip, town) {
             socket.emit('getStores', { address: address, zip: zip, town: town });
         }
@@ -83,9 +83,9 @@
 		<div id="pizzaPanel" class="panel panel-default">
 			<div class="panel-heading">Pick a pizza!</div>
 			<ul id="storeListings" class="panel-body list-group">
-				<li class="container list-group-item btn-default"><div id="cheese" onclick="gotClicked(this.id, 'pizzaSelected')">Cheese</div></li>
-				<li class="container list-group-item btn-default"><div id="pepperoni" onclick="gotClicked(this.id, 'pizzaSelected')">Pepperoni</div></li>
-				<li class="container list-group-item btn-default"><div id="sausage" onclick="gotClicked(this.id, 'pizzaSelected')">Sausage</div></li>
+				<li class="container list-group-item btn-default" style="width:inherit"><div id="cheese" onclick="gotClicked(this.id, 'pizzaSelected')">Cheese</div></li>
+				<li class="container list-group-item btn-default" style="width:inherit"><div id="pepperoni" onclick="gotClicked(this.id, 'pizzaSelected')">Pepperoni</div></li>
+				<li class="container list-group-item btn-default" style="width:inherit"><div id="sausage" onclick="gotClicked(this.id, 'pizzaSelected')">Sausage</div></li>
 			</ul>
 		</div>
 		<br>
