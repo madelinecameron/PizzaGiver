@@ -1,11 +1,46 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{{ title }}</title>
+    <title>give.pizza</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1>{{ title }}</h1>
-    <p>Welcome to {{ title }}</p>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+  <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  <div id="banner" class="row">
+    <div class="col-md-12">
+      <div class="page-header">
+        <h1 style="margin-left:5px">give.pizza</h1>
+      </div>
+    </div>
+  </div>
+  <div id="body" class="row" style="margin-left:15px;">
+    <div class="col-md-8">
+      <div>
+        <h3 style="margin-left:5px;">What is this?</h4>
+        <p style="margin-left:35px;">
+          give.pizza could be described like drop shipping for pizza.<br><br>
+          One person creates their order and recieves a unique URL which can be passed on to another person who pays for the order without seeing addresses or other personal information. Semi-anonymous pizza shipping!
+        </p>
+      </div>
+      <br>
+      <div>
+        <h3 style="margin-left:5px;">Why?</h4>
+        <p style="margin-left:35px;">
+          Pizza is delicious and people want to send their (internet) friends pizza without over-complicating things.
+        </p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <h3>Ready?</h3>
+      <div>
+        <a class="btn btn-primary btn-lg" href="/make">Make a pizza!</a>
+      </div>
+      <br>
+    </div>
+  </div>
   </body>
 </html>

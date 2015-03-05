@@ -7,7 +7,6 @@
 
 </head>
 <body>
-
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
@@ -54,7 +53,15 @@
 			}
 		}
     </script>
+    <div id="banner" class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1 style="margin-left:5px">give.pizza</h1>
+        </div>
+      </div>
+    </div>
     <div class="container panel panel-default">
+        <br>
         <div class="row">
             <div class="col-md-8">
                 <form>
