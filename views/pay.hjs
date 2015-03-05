@@ -18,19 +18,27 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script>
 		var socket = io('https://localhost:3000', {secure: true});
+    $(function() {
+      alert("TTT");
+      var id = window.location.href.slice(window.location.href.lastIndexOf('/') + 1);
+      console.log(id);
+      socket.emit('getSelectedPizza', {id: id});
+    });
+
 		$('#cc').focusout(function() {
+      alert('sdfsd');
 			var ccNum = ${'#cc'}.val().replace(' ', '');
 			if('^4[0-9]{6,}$'.test(ccNum)) { //Visa
-				${'#ccimg'}.src('./public/images/visa.jpg');
+				${'#ccimg'}.src('./public/images/visa.png');
 			}
 			if('^3[47][0-9]{5,}$'.test(ccNum)) { //Amex
-				${'#ccimg'}.src('./public/images/amex.jpg');
+				${'#ccimg'}.src('./public/images/amex.png');
 			}
 			else {
-				${'#ccimg'}.src('./public/images/mc.jpg'); //Else, we assume it is a Mastercard
+				${'#ccimg'}.src('./public/images/mastercard.png'); //Else, we assume it is a Mastercard
 			}
-		})
-		
+		});
+
     </script>
     <div class="container panel panel-default">
 		<form>
@@ -38,10 +46,12 @@
 				<label for="name">First name</label>
 				<p class="form-control-static" id="name">{{friendName}}</p>
 			</div>
+      {{#friendMsg}}
 			<div class="form-group">
 				<label for="msg">Message</label>
 				<p class="form-control-static" id="msg">{{friendMsg}}</p>
 			</div>
+      {{/friendMsg}}
 		</form>
 		<div id="displayPanel" class="panel panel-default" style="display:none">
 			<div class="panel-heading">Stores near you:</div>
@@ -51,9 +61,15 @@
 		<div id="pizzaPanel" class="panel panel-default">
 			<div class="panel-heading">Selected pizza</div>
 			<ul id="storeListings" class="panel-body list-group">
-				<li class="container list-group-item btn-default" style="width:inherit"><div id="cheese">Cheese</div></li>
-				<li class="container list-group-item btn-default" style="width:inherit"><div id="pepperoni">Pepperoni</div></li>
-				<li class="container list-group-item btn-default" style="width:inherit"><div id="sausage">Sausage</div></li>
+				<li class="container list-group-item" style="width:inherit;{{#cheeseSelected}}background-color:#6495ed{{/cheeseSelected}}">
+          <div id="cheese" class="{{cheeseSelected}}">Cheese</div>
+        </li>
+				<li class="container list-group-item" style="width:inherit;{{#pepperoniSelected}}background-color:#6495ed{{/pepperoniSelected}}">
+          <div id="pepperoni" class="{{pepperoniSelected}}">Pepperoni</div>
+        </li>
+				<li class="container list-group-item" style="width:inherit;{{#sausageSelected}}background-color:#6495ed{{/sausageSelected}}">
+          <div id="sausage" class="{{sausageSelected}}">Sausage</div>
+        </li>
 			</ul>
 		</div>
 		<br>

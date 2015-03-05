@@ -1,2 +1,4 @@
 node_modules/
 .idea/
+db_config.json
+db_config

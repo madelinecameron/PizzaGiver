@@ -17,33 +17,33 @@
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#getStores').click(function() {
-                requestStores($('#address').val(), $('#zip').val(), $('#town').val());
-            });
+    $(document).ready(function() {
+      $('#getStores').click(function() {
+          requestStores($('#address').val(), $('#zip').val(), $('#town').val());
+      });
 			$('#finalizeOrder').click(function() {
-				finalizeOrder($('.storeSelected').attr('id'), $('.pizzaSelected').attr('id'), $('#name').val(), $('#email').val(), $('#msg').val(), $('#address').val() + ',' + $('#town').val() + ',' + $('#zip').val())
-			})
-        });
+				finalizeOrder($('.storeSelected').attr('id'), $('.pizzaSelected').attr('id'), $('#name').val(), $('#email').val(), $('#msg').val(), $('#address').val() + ',' + $('#town').val() + ',' + $('#zip').val());
+			});
+    });
 		var socket = io('http://localhost:3000');
-        function requestStores(address, zip, town) {
-            socket.emit('getStores', { address: address, zip: zip, town: town });
-        }
-		
+    function requestStores(address, zip, town) {
+        socket.emit('getStores', { address: address, zip: zip, town: town });
+    }
+
 		function finalizeOrder(storeId, pizzaId, name, email, msg, address) {
 			socket.emit('finalizeOrder', { storeId: storeId, pizzaId: pizzaId, name: name, email: email, msg: msg, address: address });
 		}
 
-        socket.on('giveStores', function(data) {
-			$('#displayPanel').css('display', 'block');
-            $('#storeListings').html(data);
-        });
-		
+    socket.on('giveStores', function(data) {
+	    $('#displayPanel').css('display', 'block');
+      $('#storeListings').html(data);
+    });
+
 		socket.on('orderFinalized', function(data) {
-            $('#orderUrl').html(data);
-        });
-		
-		function gotClicked(id, className) { 
+      $('#orderUrl').html(data);
+    });
+
+		function gotClicked(id, className) {
 			if($('#' + id).parent().hasClass('btn-default') && !$('.' + className)[0]) {
 				$('#' + id).addClass(className).parent().css('background-color', '#6495ed').removeClass('btn-default')
 			}

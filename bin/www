@@ -7,16 +7,21 @@
 var app = require('../app');
 var debug = require('debug')('PizzaForYou:server');
 var http = require('http');
+var https = require('https');
 var dominos = require('dominos');
 var hogan = require('hjs');
 var mongoose = require('mongoose');
 var fs = require('fs');
-mongoose.connect("mongodb://root:pizza@ds047911.mongolab.com:47911/pizzaforyou");
+var dbConfig = require('../db_config.json');
+var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", dbConfig.user).replace('%PWD%', dbConfig.pwd);
+console.log(dbString);
+mongoose.connect(dbString);
 var Order = require('../pizzaDB')(mongoose);
 
 /**
  * Get port from environment and store in Express.
  */
+
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
@@ -25,13 +30,16 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
-var io = require('socket.io')(server);
+var serverHttp = http.createServer(app);
+var serverHttps = https.createServer(options, app).listen(443);
+var ioHttp = require('socket.io')(serverHttp);
+var ioHttps = require('socket.io')(serverHttps);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
+console.log("Starting server on port 3000...");
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
@@ -117,6 +125,13 @@ io.on("connection", function(socket) {
                 socket.emit('orderFinalized', '<p>http://pizza.maddie.space/pay/' + order.orderId + '</p>');
             }
         });
+    });
+
+    socket.on('getSelectedPizza', function(data) {
+        console.log("ID: %s", data.id);
+        Order.find({orderId: data.id}, { pizzaId: 1}, function(err, order) {
+            console.log("PizzaID: %s", order);
+        })
     });
 });
 
