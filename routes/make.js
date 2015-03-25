@@ -7,8 +7,7 @@ var router = express.Router();
 
 /* GET users listing. */
 router.get('/make', function(req, res, next) {
-    console.log("Rendering make!")
-    res.render('make', { title: 'Express' });
+    res.render('make', { title: 'give.pizza' });
 });
 
 module.exports = router;

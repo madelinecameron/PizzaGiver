@@ -16,13 +16,14 @@ var shortid = require('shortid');
 var dbConfig = require('../db_config.json');
 var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", dbConfig.user).replace('%PWD%', dbConfig.pwd);
 mongoose.connect(dbString);
-var Order = require('../pizzaDB')(mongoose);
+var Order = require('../pizzaDB')(mongoose).Orders;
+var Email = require('../pizzaDB')(mongoose).Emails;
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '80');
 app.set('port', port);
 
 /**
@@ -38,7 +39,7 @@ var ioHttp = require('socket.io')(serverHttp);
  * Listen on provided port, on all network interfaces.
  */
 
-console.log("Starting server on port 3000...");
+console.log("Starting server on port 80...");
 serverHttp.listen(port);
 serverHttp.on('error', onError);
 serverHttp.on('listening', onListening);
@@ -88,9 +89,9 @@ ioHttp.on("connection", function(socket) {
                     var template = hogan.compile(data.toString());
                     var stores = storeData.result.Stores;
                     stores.forEach(function (store) {
-                        if (store.IsOpen) {
+                        //if (store.IsOpen) {
                             html += template.render(store);
-                        }
+                        //}
                     });
                     if(html == "") {
                         html = "<b>No stores are open or around! ):</b>";
@@ -106,11 +107,22 @@ ioHttp.on("connection", function(socket) {
     });
 
     socket.on('finalizeOrder', function(data) {
-        console.log("HERE!");
-        console.log(data);
+        var options = '';
+        switch(data.pizzaId) {
+            case 'pepperoni':
+                options = 'P=1';
+                break;
+            case 'sausage':
+                options = 'S=1';
+                break;
+        }
+        var pizzaId = {
+            size: data.size,
+            options: options
+        };
         Order.create({
             orderId: shortid.generate(),
-            pizzaId: data.pizzaId,
+            pizzaId: pizzaId,
             storeId: data.storeId,
             address: data.address,
             name: data.name,
@@ -126,13 +138,27 @@ ioHttp.on("connection", function(socket) {
         });
     });
 
-    socket.on('getSelectedPizza', function(data) {
+    socket.on('orderPizza', function(data) {
         console.log("ID: %s", data.id);
-        Order.find({orderId: data.id}, { pizzaId: 1}, function(err, order) {
+        Order.find({orderId: data.id}, { pizzaId: 1, size: 1}, function(err, order) {
             console.log("PizzaID: %s", order);
+            socket.emit('selectedPizza', {pizzaId: order.pizzaId, size: order.size});
         })
     });
+
+    socket.on('signUp', function(data) {
+        Email.create({email: data.email}, function(err, email) {
+            if(!err) {
+                socket.emit('signedUp', {success: true});
+            }
+            else {
+                console.log(err);
+                socket.emit('signedUp', {success: false});
+            }
+        });
+    });
 });
+
 
 function normalizePort(val) {
   var port = parseInt(val, 10);

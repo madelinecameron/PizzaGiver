@@ -2,14 +2,14 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Pizza For You!</title>
+    <title>give.pizza</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
 </head>
 <body>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="../public/javascripts/jquery.creditCardValidator.js"></script>
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 
@@ -20,17 +20,32 @@
       $('#getStores').click(function() {
           requestStores($('#address').val(), $('#zip').val(), $('#town').val());
       });
+
+      $(document).on('blur', '*', function() {
+        $('#results').removeClass('error');
+      });
+
 			$('#finalizeOrder').click(function() {
-				finalizeOrder($('.storeSelected').attr('id'), $('.pizzaSelected').attr('id'), $('#name').val(), $('#email').val(), $('#msg').val(), $('#address').val() + ',' + $('#town').val() + ',' + $('#zip').val());
-			});
+        if(!$('.storeSelected').length) $('#results').append("<b>No store selected!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true); // If there is no store selected
+        if(!$('.pizzaSelected').length) $('#results').append("<b>No pizza selected!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
+        if($('#name').val() == "") $('#results').append("<b>No name entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
+        if($('#email').val() == "") $('#results').append("<b>No email entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
+        if($('#address').val() == "") $('#results').append("<b>No address entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
+        if($('#town').val() == "") $('#results').append("<b>No town entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
+        if($('#zip').val() == "") $('#results').append("<b>No ZIP entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
+
+        if(!$('.error').length) { //If there are no errors!
+          finalizeOrder($('.storeSelected').attr('id'), $('.pizzaSelected').attr('id'), $('#size').val(), $('#name').val(), $('#email').val(), $('#msg').val(), $('#address').val() + ',' + $('#town').val() + ',' + $('#zip').val());
+			  }
+      });
     });
 		var socket = io('http://localhost:3000');
     function requestStores(address, zip, town) {
         socket.emit('getStores', { address: address, zip: zip, town: town });
     }
 
-		function finalizeOrder(storeId, pizzaId, name, email, msg, address) {
-			socket.emit('finalizeOrder', { storeId: storeId, pizzaId: pizzaId, name: name, email: email, msg: msg, address: address });
+		function finalizeOrder(storeId, pizzaId, size, name, email, msg, address) {
+			socket.emit('finalizeOrder', { storeId: storeId, pizzaId: pizzaId, size: size, name: name, email: email, msg: msg, address: address });
 		}
 
     socket.on('giveStores', function(data) {
@@ -39,7 +54,7 @@
     });
 
 		socket.on('orderFinalized', function(data) {
-      $('#orderUrl').html(data);
+      $('#results').html(data).css('display', 'block').addClass('alert-success').removeClass('alert-danger');
     });
 
 		function gotClicked(id, className) {
@@ -56,7 +71,7 @@
     <div id="banner" class="row">
       <div class="col-md-12">
         <div class="page-header">
-          <h1 style="margin-left:5px">give.pizza</h1>
+          <h1 style="margin-left:5px"><a style="text-decoration:none;color:black" href="/">give.pizza</a> <small>Make</small></h1>
         </div>
       </div>
     </div>
@@ -94,25 +109,34 @@
 				<li class="container list-group-item btn-default" style="width:inherit"><div id="pepperoni" onclick="gotClicked(this.id, 'pizzaSelected')">Pepperoni</div></li>
 				<li class="container list-group-item btn-default" style="width:inherit"><div id="sausage" onclick="gotClicked(this.id, 'pizzaSelected')">Sausage</div></li>
 			</ul>
+      <label for="size" style="margin-left:5px">Pizza size</label>
+      <br>
+      <select id="size" class="form-control" style="width:15%;margin-left:10px">
+        <option value="10">Small</option>
+        <option value="12">Medium</option>
+        <option value="14">Large</option>
+        <option value="16">X-Large</option>
+      </select>
+      <br>
 		</div>
 		<br>
 		<form>
-			<div class="form-group">
-				<label for="name">Full name</label>
+			<div class="form-group" style="width:400px">
+				<label for="name">Your name</label>
 				<input type="text" class="form-control" id="name" placeholder="Name">
 			</div>
-			<div class="form-group">
-				<label for="email">Email</label>
-				<input type="text" class="form-control" id="email" placeholder="Email">
+			<div class="form-group" style="width:400px">
+				<label for="email">Your email</label>
+				<input type="email" class="form-control" id="email" placeholder="Email">
 			</div>
-			<div class="form-group">
-				<label for="msg">Message to buyer</label>
-				<input type="text" class="form-control" id="msg" placeholder="Message">
+			<div class="form-group" style="width:400px">
+				<label for="msg">Message to payer</label>
+				<textarea rows="3" class="form-control" id="msg" placeholder="Message"></textarea>
 			</div>
 			<button id="finalizeOrder" type="button" class="btn btn-default">Finalize my order!</button>
 		</form>
 		<br>
-		<div id="orderUrl"></div>
+		<div id="results" class="alert" style="display:none"></div>
     </div>
 </body>
 </html>

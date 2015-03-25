@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(serveStatic('/public', {maxAge: 86400}));
-app.use("/public/images", express.static(__dirname + '/public/images'));
+app.use("/public", express.static(__dirname + '/public'));
 
 app.use('/', index);
 app.get('/make', make);
