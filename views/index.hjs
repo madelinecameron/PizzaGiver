@@ -11,7 +11,7 @@
   <!-- Latest compiled and minified CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
   <script>
-    var socket = io('http://localhost:3000');
+    var socket = io('http://give.pizza:3000');
     $(function() {
       $('#signup').click(function() {
         socket.emit('signUp', { email: $('#email').val() });
@@ -54,6 +54,15 @@
         <h3 style="margin-left:5px;">Why?</h4>
         <p style="margin-left:35px;">
           Pizza is delicious and people want to send their (internet) friends pizza without over-complicating things.
+        </p>
+      </div>
+      <br>
+      <div>
+        <h3 style="margin-left:5px;">Who did this and how can I contact them?</h4>
+        <p style="margin-left:35px;">
+          <a href="http://twitter.com/Madamelic">Twitter</a><br>
+          <a href="mailto:madeline@madelinecameron.net">Email</a><br>
+          <a href="http://github.com/MadelineCameron">GitHub</a><br>
         </p>
       </div>
       <br>

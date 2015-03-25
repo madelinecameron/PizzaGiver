@@ -39,7 +39,7 @@
 			  }
       });
     });
-		var socket = io('http://localhost:3000');
+		var socket = io('http://give.pizza:3000');
     function requestStores(address, zip, town) {
         socket.emit('getStores', { address: address, zip: zip, town: town });
     }

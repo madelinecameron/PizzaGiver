@@ -18,12 +18,13 @@ var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".
 mongoose.connect(dbString);
 var Order = require('../pizzaDB')(mongoose).Orders;
 var Email = require('../pizzaDB')(mongoose).Emails;
+var proxy = require('http-proxy');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '80');
+var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
@@ -39,10 +40,13 @@ var ioHttp = require('socket.io')(serverHttp);
  * Listen on provided port, on all network interfaces.
  */
 
-console.log("Starting server on port 80...");
+console.log("Starting server on port 3000...");
 serverHttp.listen(port);
 serverHttp.on('error', onError);
 serverHttp.on('listening', onListening);
+
+console.log("Starting proxy...");
+proxy.createProxyServer({target:'http://localhost:3000'}).listen(80);
 
 /**
  * Normalize a port into a number, string, or false.

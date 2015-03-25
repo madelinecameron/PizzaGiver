@@ -17,7 +17,7 @@
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script>
-		var socket = io('http://localhost:3000');
+		var socket = io('http://give.pizza:3000');
     $(function() {
       $('#sendPizza').click(function() {
         if($('#cc').val() == "") $('#results').append("<b>No credit card information entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
