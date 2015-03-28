@@ -7,18 +7,18 @@
 var app = require('../app');
 var debug = require('debug')('PizzaForYou:server');
 var http = require('http');
-var https = require('https');
 var dominos = require('dominos');
 var hogan = require('hjs');
 var mongoose = require('mongoose');
 var fs = require('fs');
 var shortid = require('shortid');
-var dbConfig = require('../db_config.json');
-var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", dbConfig.user).replace('%PWD%', dbConfig.pwd);
-mongoose.connect(dbString);
 var Order = require('../pizzaDB')(mongoose).Orders;
 var Email = require('../pizzaDB')(mongoose).Emails;
 var proxy = require('http-proxy');
+
+var dbConfig = require('../db_config.json');
+var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", dbConfig.user).replace('%PWD%', dbConfig.pwd);
+mongoose.connect(dbString);
 
 /**
  * Get port from environment and store in Express.
@@ -32,9 +32,7 @@ app.set('port', port);
  */
 
 var serverHttp = http.createServer(app);
-//var serverHttps = https.createServer(options, app).listen(443);
-var ioHttp = require('socket.io')(serverHttp);
-//var ioHttps = require('socket.io')(serverHttps);
+var ioHttp = require('socket.io')(serverHttp); //Socket.io connection
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -42,10 +40,11 @@ var ioHttp = require('socket.io')(serverHttp);
 
 console.log("Starting server on port 3000...");
 serverHttp.listen(port);
+
 serverHttp.on('error', onError);
 serverHttp.on('listening', onListening);
 
-console.log("Starting proxy...");
+console.log("Starting proxy..."); //Proxy so that socket.io can still work. Socket.io acts weird on port 80.
 proxy.createProxyServer({target:'http://localhost:3000'}).listen(80);
 
 /**
@@ -55,7 +54,7 @@ proxy.createProxyServer({target:'http://localhost:3000'}).listen(80);
 ioHttp.on("connection", function(socket) {
     var response = "";
     socket.on('getStores', function(data) {
-        console.log("Got the message!");
+        console.log("Getting all stores!");
         var html = "";
         if(data.zip == null) {
             return;
@@ -79,8 +78,7 @@ ioHttp.on("connection", function(socket) {
                     }
                     console.log(html);
                 });
-                console.log("Sending message");
-                socket.emit('giveStores', 'Test');
+                socket.emit('giveStores', html.replace('\n', ''));
             });
         }
 
@@ -93,24 +91,21 @@ ioHttp.on("connection", function(socket) {
                     var template = hogan.compile(data.toString());
                     var stores = storeData.result.Stores;
                     stores.forEach(function (store) {
-                        //if (store.IsOpen) {
+                        if (store.IsOpen) {
                             html += template.render(store);
-                        //}
+                        }
                     });
                     if(html == "") {
                         html = "<b>No stores are open or around! ):</b>";
                     }
-                    dominos.store.menu(1546, function(data) {
-                        //console.log(data.result.Products);
-                    });
-                    //console.log("Sending %s", html.replace('\n', ''));
+
                     socket.emit('giveStores', html.replace('\n', ''));
                 });
             });
         }
     });
 
-    socket.on('finalizeOrder', function(data) {
+    socket.on('finalizeOrder', function(data) {  //Create order in database
         var options = '';
         switch(data.pizzaId) {
             case 'pepperoni':

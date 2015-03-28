@@ -17,10 +17,6 @@ var emailSchema = new mongoose.Schema({
     email: { type: String, required: true }
 });
 
-//module.exports = function(mongoose) {
-//    return mongoose.model('Orders', orderSchema);
-//};
-
 module.exports = function(mongoose) {
     return {
         Orders: mongoose.model('Orders', orderSchema),

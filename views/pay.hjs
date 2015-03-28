@@ -23,7 +23,7 @@
         if($('#cc').val() == "") $('#results').append("<b>No credit card information entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
         if($('#seccode').val() == "") $('#results').append("<b>No security code entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
         if(!$('.error').length) {
-          var orderId = window.location.href.slice(window.location.href.lastIndexOf('/') + 1);
+          var orderId = window.location.href.slice(window.location.href.lastIndexOf('/') + 1); //Splits orderID out of the URL
           socket.emit('orderPizza', { orderId: orderId, cc_num: $('#cc').val(), expiration: $('#expr_month').val() + $('#expr_year').val(), zip: $('#zip').val() });
         }
       });
@@ -33,13 +33,13 @@
       });
     });
 
-		$(document).on('blur', '#cc', function() {
+		$(document).on('blur', '#cc', function() {  //Changes CC image depending on the credit card
 			var result = $('#cc').validateCreditCard({accept: ['visa', 'mastercard', 'amex']});
-      if((!result.length_valid || !result.luhn_valid) && !$('.baddc').length) {
+      if((!result.length_valid || !result.luhn_valid) && !$('.badcc').length) {
         $('#results').append("<b>Credit card number is not valid!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error badcc', true);
       }
       else {
-        if(!$('.baddc').length) {
+        if(!$('.badcc').length) {
           $('#ccimg').attr('src', '/public/images/' + result.card_type.name + '.png');
         }
       }
