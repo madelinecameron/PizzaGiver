@@ -11,13 +11,13 @@
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <script src="../public/javascripts/jquery.creditCardValidator.js"></script>
-	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 
-	<!-- Latest compiled and minified JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script>
-		var socket = io('http://give.pizza:3000');
+    var socket = io('http://give.pizza:3000');
     $(function() {
       $('#sendPizza').click(function() {
         if($('#cc').val() == "") {
@@ -49,8 +49,8 @@
       });
     });
 
-		$(document).on('blur', '#cc', function() {  //Changes CC image depending on the credit card
-			var result = $('#cc').validateCreditCard({
+        $(document).on('blur', '#cc', function() {  //Changes CC image depending on the credit card
+            var result = $('#cc').validateCreditCard({
         accept: ['visa', 'mastercard', 'amex']
       });
 
@@ -65,7 +65,7 @@
           $('#ccimg').attr('src', '/public/images/' + result.card_type.name + '.png');
         }
       }
-		});
+        });
 
     socket.on('orderComplete', function(data) {
       $('#results').html(data)
@@ -87,90 +87,89 @@
     </div>
     <div class="container panel panel-default">
     <br>
-		<form>
-			<div class="form-group">
-				<label for="name">First name</label>
-				<p class="form-control-static" id="name">{{friendName}}</p>
-			</div>
+        <form>
+            <div class="form-group">
+                <label for="name">First name</label>
+                <p class="form-control-static" id="name">{{friendName}}</p>
+            </div>
       <div class="form-group">
         <label for="total">Order total:</label>
         <p class="form-control-static" id="total">${{orderTotal}}</p>
       </div>
       {{#friendMsg}}
-			<div class="form-group">
-				<label for="msg">Message</label>
-				<p class="form-control-static" id="msg">{{friendMsg}}</p>
-			</div>
+            <div class="form-group">
+                <label for="msg">Message</label>
+                <p class="form-control-static" id="msg">{{friendMsg}}</p>
+            </div>
       {{/friendMsg}}
-		</form>
-		<div id="displayPanel" class="panel panel-default" style="display:none">
-			<div class="panel-heading">Stores near you:</div>
-			<ul id="storeListings" class="panel-body list-group">
-			</ul>
-		</div>
-		<div id="pizzaPanel" class="panel panel-default">
-			<div class="panel-heading">Selected pizza</div>
-			<ul id="storeListings" class="panel-body list-group">
-				<li class="container list-group-item" style="width:inherit;{{#cheeseSelected}}background-color:#6495ed{{/cheeseSelected}}">
+        </form>
+        <div id="displayPanel" class="panel panel-default" style="display:none">
+            <div class="panel-heading">Stores near you:</div>
+            <ul id="storeListings" class="panel-body list-group">
+            </ul>
+        </div>
+        <div id="pizzaPanel" class="panel panel-default">
+            <div class="panel-heading">Selected pizza</div>
+            <ul id="storeListings" class="panel-body list-group">
+                <li class="container list-group-item" style="width:inherit;{{#cheeseSelected}}background-color:#6495ed{{/cheeseSelected}}">
           <div id="cheese" class="{{cheeseSelected}}">Cheese</div>
         </li>
-				<li class="container list-group-item" style="width:inherit;{{#pepperoniSelected}}background-color:#6495ed{{/pepperoniSelected}}">
+                <li class="container list-group-item" style="width:inherit;{{#pepperoniSelected}}background-color:#6495ed{{/pepperoniSelected}}">
           <div id="pepperoni" class="{{pepperoniSelected}}">Pepperoni</div>
         </li>
-				<li class="container list-group-item" style="width:inherit;{{#sausageSelected}}background-color:#6495ed{{/sausageSelected}}">
+                <li class="container list-group-item" style="width:inherit;{{#sausageSelected}}background-color:#6495ed{{/sausageSelected}}">
           <div id="sausage" class="{{sausageSelected}}">Sausage</div>
         </li>
-			</ul>
+            </ul>
       <label for="size" style="margin-left:5px">Pizza size: {{size}}"</label>
       <br>
-		</div>
-		<br>
-		<form>
-			<div class="form-group form-inline">
-				<label for="cc">Card number: </label><br>
-				<input type="text" class="form-control" id="cc" placeholder="Card number">
-				<img src="" alt="" id="ccimg" style="height:40px;width:60px"/>
-			</div>
-			<div class="form-group form-inline">
-				<label for="expiration">Expiration: </label>
-				<br>
-				<select id="expr_month" class="form-control">
-					<option>01</option>
-					<option>02</option>
-					<option>03</option>
-					<option>04</option>
-					<option>05</option>
-					<option>06</option>
-					<option>07</option>
-					<option>08</option>
-					<option>09</option>
-					<option>10</option>
-					<option>11</option>
-					<option>12</option>
-				</select>
-				<select id="expr_year" class="form-control">
-					<option>15</option>
-					<option>16</option>
+        </div>
+        <br>
+        <form>
+            <div class="form-group form-inline">
+                <label for="cc">Card number: </label><br>
+                <input type="text" class="form-control" id="cc" placeholder="Card number">
+                <img src="" alt="" id="ccimg" style="height:40px;width:60px"/>
+            </div>
+            <div class="form-group form-inline">
+                <label for="expiration">Expiration: </label>
+                <br>
+                <select id="expr_month" class="form-control">
+                    <option>01</option>
+                    <option>02</option>
+                    <option>03</option>
+                    <option>04</option>
+                    <option>05</option>
+                    <option>06</option>
+                    <option>07</option>
+                    <option>08</option>
+                    <option>09</option>
+                    <option>10</option>
+                    <option>11</option>
+                    <option>12</option>
+                </select>
+                <select id="expr_year" class="form-control">
+          <option>15</option>
+          <option>16</option>
           <option>17</option>
           <option>18</option>
           <option>19</option>
           <option>20</option>
           <option>21</option>
           <option>22</option>
-
-				</select>
-			</div>
-			<div class="form-group">
-				<label for="seccode">Security Code: </label>
-				<input type="text" class="form-control" id="seccode" placeholder="000" style="width:50px">
-			</div>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="seccode">Security Code: </label>
+                <input type="text" class="form-control" id="seccode" placeholder="000" style="width:50px">
+            </div>
       <div class="form-group">
         <label for="zip">Billing ZIP: </label>
         <input type="text" class="form-control" id="zip" style="width:100px">
       </div>
-			<button id="sendPizza" type="button" class="btn btn-default" disabled>Send pizza!</button>
-		</form>
-		<br>
+            <button id="sendPizza" type="button" class="btn btn-default" disabled>Send pizza!</button>
+        </form>
+        <br>
     <div id="results" class="alert" style="display:none"></div>
     </div>
 </body>

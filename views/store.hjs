@@ -1,24 +1,24 @@
 <li class="container list-group-item btn-default" style="width:inherit">
-	<div id='{{StoreID}}' onclick="gotClicked(this.id, 'storeSelected')">
-		<div class="col-md-4">
-			<b>Address:</b> {{AddressDescription}}</p>
-			<p><b><abbr title="Phone">P:</abbr></b> {{Phone}}</p>
-			<p><b>Distance:</b> {{MaxDistance}} miles</p>
-			<p><b>Hours:</b> {{ServiceHoursDescription.Delivery}}
-		</div>
-		<div class="col-md-1">
-			{{#AllowDeliveryOrders}}
-				<p class="bg-success text-center">Delivers</p>
-			{{/AllowDeliveryOrders}}
-			{{^AllowDeliveryOrders}}
-				<p class="bg-danger text-center">Delivers</p>
-			{{/AllowDeliveryOrders}}
-			{{#AllowCarryoutOrders}}
-				<p class="bg-success text-center">Carryout</p>
-			{{/AllowCarryoutOrders}}
-			{{^AllowCarryoutOrders}}
-				<p class="bg-danger text-center">Carryout</p>
-			{{/AllowCarryoutOrders}}
-		</div>
-	</div>
+    <div id='{{StoreID}}' onclick="gotClicked(this.id, 'storeSelected')">
+        <div class="col-md-4">
+            <b>Address:</b> {{AddressDescription}}</p>
+            <p><b><abbr title="Phone">P:</abbr></b> {{Phone}}</p>
+            <p><b>Distance:</b> {{MaxDistance}} miles</p>
+            <p><b>Hours:</b> {{ServiceHoursDescription.Delivery}}
+        </div>
+        <div class="col-md-1">
+            {{#AllowDeliveryOrders}}
+                <p class="bg-success text-center">Delivers</p>
+            {{/AllowDeliveryOrders}}
+            {{^AllowDeliveryOrders}}
+                <p class="bg-danger text-center">Delivers</p>
+            {{/AllowDeliveryOrders}}
+            {{#AllowCarryoutOrders}}
+                <p class="bg-success text-center">Carryout</p>
+            {{/AllowCarryoutOrders}}
+            {{^AllowCarryoutOrders}}
+                <p class="bg-danger text-center">Carryout</p>
+            {{/AllowCarryoutOrders}}
+        </div>
+    </div>
 </li>
