@@ -26,16 +26,43 @@
       });
 
 			$('#finalizeOrder').click(function() {
-        if(!$('.storeSelected').length) $('#results').append("<b>No store selected!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true); // If there is no store selected
-        if(!$('.pizzaSelected').length) $('#results').append("<b>No pizza selected!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
-        if($('#name').val() == "") $('#results').append("<b>No name entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
-        if($('#email').val() == "") $('#results').append("<b>No email entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
-        if($('#address').val() == "") $('#results').append("<b>No address entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
-        if($('#town').val() == "") $('#results').append("<b>No town entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
-        if($('#zip').val() == "") $('#results').append("<b>No ZIP entered!</b><br>").css('display', 'block').removeClass('alert-success').toggleClass('alert-danger error', true);
+        var checkList = [
+          '#name',
+          '#email',
+          '#address',
+          '#town',
+          '#zip'
+        ];
+        checkList.forEach(function(item){
+          if($(item).val() == "") {
+            $('#results').append("<b>No " + item.substring(1) + " entered!</b><br>")
+                         .css('display', 'block')
+                         .removeClass('alert-success')
+                         .toggleClass('alert-danger error', true);
+        })
+        if(!$('.storeSelected').length) {
+          $('#results').append("<b>No store selected!</b><br>")
+                       .css('display', 'block')
+                       .removeClass('alert-success')
+                       .toggleClass('alert-danger error', true);
+        }
+        if(!$('.pizzaSelected').length) {
+          $('#results').append("<b>No pizza selected!</b><br>")
+                       .css('display', 'block')
+                       .removeClass('alert-success')
+                      .toggleClass('alert-danger error', true);
+        }
 
         if(!$('.error').length) { //If there are no errors!
-          finalizeOrder($('.storeSelected').attr('id'), $('.pizzaSelected').attr('id'), $('#size').val(), $('#name').val(), $('#email').val(), $('#msg').val(), $('#address').val() + ',' + $('#town').val() + ',' + $('#zip').val());
+          finalizeOrder($('.storeSelected').attr('id'),
+                          $('.pizzaSelected').attr('id'),
+                          $('#size').val(),
+                          $('#name').val(),
+                          $('#email').val(),
+                          $('#msg').val(),
+                          ($('#address').val() + ',' + $('#town').val() +
+                            ',' + $('#zip').val())
+                        );
 			  }
       });
     });
@@ -45,7 +72,14 @@
     }
 
 		function finalizeOrder(storeId, pizzaId, size, name, email, msg, address) {
-			socket.emit('finalizeOrder', { storeId: storeId, pizzaId: pizzaId, size: size, name: name, email: email, msg: msg, address: address });
+			socket.emit('finalizeOrder', {
+        storeId: storeId,
+        pizzaId: pizzaId,
+        size: size,
+        name: name,
+        email: email,
+        msg: msg,
+        address: address });
 		}
 
     socket.on('giveStores', function(data) {
@@ -54,16 +88,25 @@
     });
 
 		socket.on('orderFinalized', function(data) {
-      $('#results').html(data).css('display', 'block').addClass('alert-success').removeClass('alert-danger');
+      $('#results').html(data)
+                   .css('display', 'block')
+                   .addClass('alert-success')
+                   .removeClass('alert-danger');
     });
 
 		function gotClicked(id, className) {
 			if($('#' + id).parent().hasClass('btn-default') && !$('.' + className)[0]) {
-				$('#' + id).addClass(className).parent().css('background-color', '#6495ed').removeClass('btn-default')
+				$('#' + id).addClass(className)
+                   .parent()
+                   .css('background-color', '#6495ed')
+                   .removeClass('btn-default')
 			}
 			else {
 				if($('.' + className)[0].id == id) {
-					$('#' + id).removeClass(className).parent().css('background-color', '').addClass('btn-default');
+					$('#' + id).removeClass(className)
+                     .parent()
+                     .css('background-color', '')
+                     .addClass('btn-default');
 				}
 			}
 		}
@@ -71,7 +114,10 @@
     <div id="banner" class="row">
       <div class="col-md-12">
         <div class="page-header">
-          <h1 style="margin-left:5px"><a style="text-decoration:none;color:black" href="/">give.pizza</a> <small>Make</small></h1>
+          <h1 style="margin-left:5px">
+            <a style="text-decoration:none;color:black" href="/">give.pizza</a>
+            <small>Make</small>
+          </h1>
         </div>
       </div>
     </div>
@@ -105,9 +151,15 @@
 		<div id="pizzaPanel" class="panel panel-default">
 			<div class="panel-heading">Pick a pizza!</div>
 			<ul id="storeListings" class="panel-body list-group">
-				<li class="container list-group-item btn-default" style="width:inherit"><div id="cheese" onclick="gotClicked(this.id, 'pizzaSelected')">Cheese</div></li>
-				<li class="container list-group-item btn-default" style="width:inherit"><div id="pepperoni" onclick="gotClicked(this.id, 'pizzaSelected')">Pepperoni</div></li>
-				<li class="container list-group-item btn-default" style="width:inherit"><div id="sausage" onclick="gotClicked(this.id, 'pizzaSelected')">Sausage</div></li>
+				<li class="container list-group-item btn-default" style="width:inherit">
+          <div id="cheese" onclick="gotClicked(this.id, 'pizzaSelected')">Cheese</div>
+        </li>
+				<li class="container list-group-item btn-default" style="width:inherit">
+          <div id="pepperoni" onclick="gotClicked(this.id, 'pizzaSelected')">Pepperoni</div>
+        </li>
+				<li class="container list-group-item btn-default" style="width:inherit">
+          <div id="sausage" onclick="gotClicked(this.id, 'pizzaSelected')">Sausage</div>
+        </li>
 			</ul>
       <label for="size" style="margin-left:5px">Pizza size</label>
       <br>

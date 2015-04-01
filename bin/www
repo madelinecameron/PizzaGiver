@@ -84,7 +84,7 @@ ioHttp.on("connection", function(socket) {
 
         if(data.address != null && data.town != null) {
             dominos.store.find(data.address + " " + data.town + " " + data.zip, function(storeData) {
-                fs.readFile('./views/store.mustache', function(err, data) {
+                fs.readFile('./views/store.hjs', function(err, data) {
                     if (err) {
                         console.log(err);
                     }

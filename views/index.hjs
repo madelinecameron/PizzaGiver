@@ -25,10 +25,12 @@
     socket.on('signedUp', function(data) {
       $('#messages').css('display', 'block');
       if(data.success) {
-        $('#messages').addClass('bg-success').html('<p>Successfully added your email! :)</p>');
+        $('#messages').addClass('bg-success')
+                      .html('<p>Successfully added your email! :)</p>');
       }
       else {
-        $('#messages').addClass('bg-danger').html('<p>Something failed... :(</p>');
+        $('#messages').addClass('bg-danger')
+                      .html('<p>Something failed... :(</p>');
       }
     });
   </script>
@@ -76,7 +78,7 @@
               </div>
               <div id="messages" style="display:none;width:300px">
               </div>
-              <button id="signup" type="button" class="btn btn-default" title="Dismissible popover" data-content="And here's some amazing content. It's very engaging. Right?">Sign up</button>
+              <button id="signup" type="button" class="btn btn-default">Sign up</button>
           </form>
         </p>
       </div>
