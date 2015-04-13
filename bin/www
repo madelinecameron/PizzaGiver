@@ -15,9 +15,8 @@ var shortid = require('shortid');
 var Order = require('../pizzaDB')(mongoose).Orders;
 var Email = require('../pizzaDB')(mongoose).Emails;
 var proxy = require('http-proxy');
-
-var dbConfig = require('../db_config.json');
-var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", dbConfig.user).replace('%PWD%', dbConfig.pwd);
+var config = require('../conf/config.json');
+var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", config.db.user).replace('%PWD%', config.db.password);
 mongoose.connect(dbString);
 
 /**
@@ -60,7 +59,7 @@ ioHttp.on("connection", function(socket) {
             return;
         }
         if(data.address == null && data.town != null) {
-            dominos.store.find(data.town + " " + data.zip, function(storeData) {
+            dominos.Store.findNearbyStores(new dominos.Address(data.address), 'Delivery', function(storeData) {
                 fs.readfile('./views/store.mustache', function(err, data) {
                     if (err) {
                         console.log(err);
@@ -83,7 +82,7 @@ ioHttp.on("connection", function(socket) {
         }
 
         if(data.address != null && data.town != null) {
-            dominos.store.find(data.address + " " + data.town + " " + data.zip, function(storeData) {
+            dominos.Store.findNearbyStores(new dominos.Address(data.address), 'Delivery', function(storeData) {
                 fs.readFile('./views/store.hjs', function(err, data) {
                     if (err) {
                         console.log(err);
@@ -115,18 +114,34 @@ ioHttp.on("connection", function(socket) {
                 options = 'S=1';
                 break;
         }
-        var pizzaId = {
-            size: data.size,
-            options: options
-        };
-        Order.create({
-            orderId: shortid.generate(),
-            pizzaId: pizzaId,
-            storeId: data.storeId,
-            address: data.address,
-            name: data.name,
-            message: data.msg,
-            email: data.email
+        var newOrder = dominos.Order({
+            customer: new dominos.Customer({
+                FirstName: data.name,
+                LastName: data.name,
+                Address: new dominos.Address(data.address),
+                Email: data.email
+            }),
+            storeID: data.storeId
+        });
+
+        newOrder.addItem(new dominos.Item({
+            size: data.size.toString() + 'SCREEN',
+            options: options,
+            quantity: 1
+        }));
+
+        newOrder.validate(function() {
+            console.log("Validate");
+        });
+
+        newOrder.price(function() {
+            console.log("Price");
+        });
+
+        Order.create({  //Create the order in the database
+            orderId: shortid.generate(),  // Internal Order ID != Dominos Order ID
+            order: JSON.stringify(newOrder),
+            message: data.msg
         }, function(err, order) {
             if(err) {
                 console.log("Error: " + err);
@@ -139,9 +154,17 @@ ioHttp.on("connection", function(socket) {
 
     socket.on('orderPizza', function(data) {
         console.log("ID: %s", data.id);
-        Order.find({orderId: data.id}, { pizzaId: 1, size: 1}, function(err, order) {
+        Order.find({orderId: data.id}, { order: 1 }, function(err, order) {
             console.log("PizzaID: %s", order);
-            socket.emit('selectedPizza', {pizzaId: order.pizzaId, size: order.size});
+            var constructedOrder = new dominos.Order({ Order: order });  //Reconstructs from stored order
+            constructedOrder.place(stripeToken, function(result) {
+                if(result.success) {
+                    socket.emit('orderSuccessful');
+                }
+                else {
+                    socket.emit('orderFailed');
+                }
+            });
         })
     });
 

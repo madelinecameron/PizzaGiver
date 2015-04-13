@@ -10,7 +10,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-    <script src="../public/javascripts/jquery.creditCardValidator.js"></script>
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 
@@ -18,29 +18,14 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script>
     var socket = io('http://give.pizza:3000');
+    Stripe.setPublishableKey('pk_test_tBpAD31uGVOhN7q5cHzawwM8');
     $(function() {
       $('#sendPizza').click(function() {
-        if($('#cc').val() == "") {
-          $('#results').append("<b>No credit card information entered!</b><br>")
-                       .css('display', 'block')
-                       .removeClass('alert-success')
-                       .toggleClass('alert-danger error', true);
-        }
-        if($('#seccode').val() == "") {
-          $('#results').append("<b>No security code entered!</b><br>")
-                       .css('display', 'block')
-                       .removeClass('alert-success')
-                       .toggleClass('alert-danger error', true);
-        }
-        if(!$('.error').length) {
-          var orderId = window.location.href.slice(
-            window.location.href.lastIndexOf('/') + 1); //Splits orderID out of the URL
-          socket.emit('orderPizza', {
-            orderId: orderId,
-            cc_num: $('#cc').val(),
-            expiration: $('#expr_month').val() + $('#expr_year').val(),
-            zip: $('#zip').val()
-          });
+          $(this).find('button').prop('disabled', true);
+
+          Stripe.card.createToken($(this), stripeResponseHandler);
+
+          return false;
         }
       });
 
@@ -49,23 +34,23 @@
       });
     });
 
-        $(document).on('blur', '#cc', function() {  //Changes CC image depending on the credit card
-            var result = $('#cc').validateCreditCard({
-        accept: ['visa', 'mastercard', 'amex']
-      });
-
-      if((!result.length_valid || !result.luhn_valid) && !$('.badcc').length) {
-        $('#results').append("<b>Credit card number is not valid!</b><br>")
-                     .css('display', 'block')
-                     .removeClass('alert-success')
-                     .toggleClass('alert-danger error badcc', true);
-      }
-      else {
-        if(!$('.badcc').length) {
-          $('#ccimg').attr('src', '/public/images/' + result.card_type.name + '.png');
-        }
-      }
+    $(document).on('blur', '#cc', function() {  //Changes CC image depending on the credit card
+        var result = $('#cc').validateCreditCard({
+         accept: ['visa', 'mastercard', 'amex']
         });
+
+        if((!result.length_valid || !result.luhn_valid) && !$('.badcc').length) {
+            $('#results').append("<b>Credit card number is not valid!</b><br>")
+                         .css('display', 'block')
+                         .removeClass('alert-success')
+                         .toggleClass('alert-danger error badcc', true);
+        }
+        else {
+            if(!$('.badcc').length) {
+                $('#ccimg').attr('src', '/public/images/' + result.card_type.name + '.png');
+            }
+        }
+    });
 
     socket.on('orderComplete', function(data) {
       $('#results').html(data)
@@ -125,43 +110,23 @@
       <br>
         </div>
         <br>
-        <form>
+        <form action="" method="POST">
             <div class="form-group form-inline">
                 <label for="cc">Card number: </label><br>
-                <input type="text" class="form-control" id="cc" placeholder="Card number">
+                <input type="text" class="form-control" id="cc" placeholder="Card number" data-stripe="number">
                 <img src="" alt="" id="ccimg" style="height:40px;width:60px"/>
             </div>
             <div class="form-group form-inline">
-                <label for="expiration">Expiration: </label>
-                <br>
-                <select id="expr_month" class="form-control">
-                    <option>01</option>
-                    <option>02</option>
-                    <option>03</option>
-                    <option>04</option>
-                    <option>05</option>
-                    <option>06</option>
-                    <option>07</option>
-                    <option>08</option>
-                    <option>09</option>
-                    <option>10</option>
-                    <option>11</option>
-                    <option>12</option>
-                </select>
-                <select id="expr_year" class="form-control">
-          <option>15</option>
-          <option>16</option>
-          <option>17</option>
-          <option>18</option>
-          <option>19</option>
-          <option>20</option>
-          <option>21</option>
-          <option>22</option>
-                </select>
+                <label>
+                  <span>Expiration (MM/YYYY)</span>
+                  <input type="text" size="2" data-stripe="exp-month"/>
+                </label>
+                <span> / </span>
+                <input type="text" size="4" data-stripe="exp-year"/>
             </div>
             <div class="form-group">
                 <label for="seccode">Security Code: </label>
-                <input type="text" class="form-control" id="seccode" placeholder="000" style="width:50px">
+                <input type="text" class="form-control" id="seccode" placeholder="000" data-stripe="cvc" style="width:50px">
             </div>
       <div class="form-group">
         <label for="zip">Billing ZIP: </label>

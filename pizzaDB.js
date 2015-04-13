@@ -22,4 +22,4 @@ module.exports = function(mongoose) {
         Orders: mongoose.model('Orders', orderSchema),
         Emails: mongoose.model('Emails', emailSchema)
     }
-}
+} 

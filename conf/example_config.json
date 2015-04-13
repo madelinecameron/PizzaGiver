@@ -1,0 +1,14 @@
+{
+  "payment": {
+    "Number": "XXXX",
+    "CardType": "VISA",
+    "Expiration": "1017",
+    "SecurityCode": "189",
+    "PostalCode": "90210"
+  },
+  "db": {
+    "user": "root",
+    "password": "password"
+  },
+  "stripe_key": "KEY"
+}
