@@ -7,7 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('PizzaForYou:server');
 var http = require('http');
-var dominos = require('dominos');
+var dominos = require('../node_modules/node-dominos-pizza-api/dominos-pizza-api');
 var hogan = require('hjs');
 var mongoose = require('mongoose');
 var fs = require('fs');
@@ -59,7 +59,7 @@ ioHttp.on("connection", function(socket) {
             return;
         }
         if(data.address == null && data.town != null) {
-            dominos.Store.findNearbyStores(new dominos.Address(data.address), 'Delivery', function(storeData) {
+            dominos.Store.findNearbyStores(data.address, 'Delivery', function(storeData) {
                 fs.readfile('./views/store.mustache', function(err, data) {
                     if (err) {
                         console.log(err);
@@ -82,7 +82,8 @@ ioHttp.on("connection", function(socket) {
         }
 
         if(data.address != null && data.town != null) {
-            dominos.Store.findNearbyStores(new dominos.Address(data.address), 'Delivery', function(storeData) {
+            var store = new dominos.Store();
+            store.findNearbyStores(data.address, 'Delivery', function(storeData) {
                 fs.readFile('./views/store.hjs', function(err, data) {
                     if (err) {
                         console.log(err);
@@ -114,6 +115,8 @@ ioHttp.on("connection", function(socket) {
                 options = 'S=1';
                 break;
         }
+        console.log("TEST");
+        console.log(data);
         var newOrder = dominos.Order({
             customer: new dominos.Customer({
                 FirstName: data.name,

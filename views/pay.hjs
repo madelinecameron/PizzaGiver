@@ -59,6 +59,22 @@
                    .removeClass('alert-danger');
     });
 
+    function stripeResponseHandler(status, response) {
+      var $form = $('#paymentForm');
+
+      if (response.error) {
+        // Show the errors on the form
+        $form.find('#results').text(response.error.message);
+        $form.find('button').prop('disabled', false);
+      } else {
+        // response contains id and card, which contains additional card details
+        var token = response.id;
+        // Insert the token into the form so it gets submitted to the server
+        $form.append($('<input type="hidden" name="stripeToken" />').val(token));
+        // and submit
+        $form.get(0).submit();
+      }
+    };
     </script>
     <div id="banner" class="row">
       <div class="col-md-12">
@@ -110,7 +126,7 @@
       <br>
         </div>
         <br>
-        <form action="" method="POST">
+        <form action="" method="POST" id="paymentForm">
             <div class="form-group form-inline">
                 <label for="cc">Card number: </label><br>
                 <input type="text" class="form-control" id="cc" placeholder="Card number" data-stripe="number">
@@ -128,14 +144,14 @@
                 <label for="seccode">Security Code: </label>
                 <input type="text" class="form-control" id="seccode" placeholder="000" data-stripe="cvc" style="width:50px">
             </div>
-      <div class="form-group">
-        <label for="zip">Billing ZIP: </label>
-        <input type="text" class="form-control" id="zip" style="width:100px">
-      </div>
-            <button id="sendPizza" type="button" class="btn btn-default" disabled>Send pizza!</button>
+              <div class="form-group">
+                <label for="zip">Billing ZIP: </label>
+                <input type="text" class="form-control" id="zip" style="width:100px">
+              </div>
+              <button id="sendPizza" type="button" class="btn btn-default" disabled>Send pizza!</button>
+              <div id="results" class="alert" style="display:none"></div>
         </form>
         <br>
-    <div id="results" class="alert" style="display:none"></div>
-    </div>
+      </div>
 </body>
 </html>
