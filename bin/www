@@ -54,12 +54,13 @@ ioHttp.on("connection", function(socket) {
     var response = "";
     socket.on('getStores', function(data) {
         console.log("Getting all stores!");
+        console.log(data);
         var html = "";
-        if(data.zip == null) {
+        if(data.zip == '') {
             return;
         }
-        if(data.address == null && data.town != null) {
-            dominos.Store.findNearbyStores(data.address, 'Delivery', function(storeData) {
+        if(data.address == '' && data.town != '' && data.state != '') {
+            dominos.Util.findNearbyStores([','.join(data)], 'Delivery', function(storeData) {
                 fs.readfile('./views/store.mustache', function(err, data) {
                     if (err) {
                         console.log(err);
@@ -68,7 +69,7 @@ ioHttp.on("connection", function(socket) {
                     var html = "";
                     var stores = storeData.result.Stores;
                     for (store in stores) {
-                        if (store.IsOpen) {
+                        if (store.IsOpen && store.IsDeliveryStore) {
                             html += template.render(store);
                         }
                     }
@@ -81,9 +82,8 @@ ioHttp.on("connection", function(socket) {
             });
         }
 
-        if(data.address != null && data.town != null) {
-            var store = new dominos.Store();
-            store.findNearbyStores(data.address, 'Delivery', function(storeData) {
+        if(data.address != '' && data.town != '' && data.state != '') {
+            dominos.Util.findNearbyStores([data.address, data.town + ',' + data.state + ',' + data.zip], 'Delivery', function(storeData) {
                 fs.readFile('./views/store.hjs', function(err, data) {
                     if (err) {
                         console.log(err);
@@ -91,7 +91,8 @@ ioHttp.on("connection", function(socket) {
                     var template = hogan.compile(data.toString());
                     var stores = storeData.result.Stores;
                     stores.forEach(function (store) {
-                        if (store.IsOpen) {
+                        console.log(store);
+                        if (store.IsOpen && store.IsDeliveryStore) {
                             html += template.render(store);
                         }
                     });
@@ -115,32 +116,31 @@ ioHttp.on("connection", function(socket) {
                 options = 'S=1';
                 break;
         }
-        console.log("TEST");
-        console.log(data);
-        var newOrder = dominos.Order({
+        var splitName = data.name.split(' ');
+        var newOrder = new dominos.Order({
             customer: new dominos.Customer({
-                FirstName: data.name,
-                LastName: data.name,
-                Address: new dominos.Address(data.address),
-                Email: data.email
+                firstName: splitName[0],
+                lastName: splitName[1] !== undefined ? splitName[1] : "",
+                address: new dominos.Address(data.address),
+                email: data.email
             }),
             storeID: data.storeId
         });
 
         newOrder.addItem(new dominos.Item({
-            size: data.size.toString() + 'SCREEN',
+            code: data.size.toString() + 'SCREEN',
             options: options,
             quantity: 1
         }));
 
-        newOrder.validate(function() {
-            console.log("Validate");
+        newOrder.validate(function(result) {
+            console.log(result);
         });
 
-        newOrder.price(function() {
-            console.log("Price");
+        newOrder.price(function(result) {
+            console.log(result);
         });
-
+        console.log(newOrder);
         Order.create({  //Create the order in the database
             orderId: shortid.generate(),  // Internal Order ID != Dominos Order ID
             order: JSON.stringify(newOrder),

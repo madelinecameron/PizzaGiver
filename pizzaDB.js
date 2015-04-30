@@ -5,12 +5,9 @@ var mongoose = require('mongoose');
 var shortid = require('shortid');
 
 var orderSchema = new mongoose.Schema({
-    orderId: {type: String, required: true, default: shortid.generate},
-    pizzaId: { type: mongoose.Schema.Types.Mixed, required: true},
-    address: { type: String, required: true },
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    message: {type: String, required: false, default: "Thank you! :)"}
+    orderId: { type: String, required: true, default: shortid.generate },
+    order: { type: mongoose.Schema.Types.Mixed, required: true},
+    message: { type: String, required: false, default: "Thank you! :)" }
 });
 
 var emailSchema = new mongoose.Schema({

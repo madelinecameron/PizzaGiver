@@ -15,71 +15,76 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script>
+    var finalized = false;
     $(document).ready(function() {
       $('#getStores').click(function() {
-         requestStores($('#address').val(), $('#zip').val(), $('#town').val());
+        requestStores($('#address').val(), $('#town').val(), $('#state').val(), $('#zip').val());
       });
 
       $(document).on('blur', '*', function() {
         $('#results').removeClass('error');
       });
 
-     $('#finalizeOrder').click(function() {
-      var checkList = [
-        '#name',
-        '#email',
-        '#address',
-        '#town',
-        '#zip'
-      ];
-      checkList.forEach(function(item){
-        if($(item).val() == "") {
-          $('#results').append("<b>No " + item.substring(1) + " entered!</b><br>")
-                       .css('display', 'block')
-                       .removeClass('alert-success')
-                       .toggleClass('alert-danger error', true);
-        }
-        if(!$('.storeSelected').length) {
+      $('#finalizeOrder').click(function() {
+        var checkList = [
+          '#name',
+          '#email',
+          '#address',
+          '#town',
+          '#state',
+          '#zip',
+        ];
+        checkList.forEach(function(item){
+          if($(item).val() == "") {
+            $('#results').append("<b>No " + item.substring(1) + " entered!</b><br>")
+                          .css('display', 'block')
+                          .removeClass('alert-success')
+                          .toggleClass('alert-danger error', true);
+          }
+          if(!$('.storeSelected').length) {
             $('#results').append("<b>No store selected!</b><br>")
-                         .css('display', 'block')
-                         .removeClass('alert-success')
-                         .toggleClass('alert-danger error', true);
-        }
-        if(!$('.pizzaSelected').length) {
-          $('#results').append("<b>No pizza selected!</b><br>")
-                       .css('display', 'block')
-                       .removeClass('alert-success')
-                       .toggleClass('alert-danger error', true);
-        }
+                          .css('display', 'block')
+                          .removeClass('alert-success')
+                          .toggleClass('alert-danger error', true);
+          }
+          if(!$('.pizzaSelected').length) {
+            $('#results').append("<b>No pizza selected!</b><br>")
+                          .css('display', 'block')
+                          .removeClass('alert-success')
+                          .toggleClass('alert-danger error', true);
+          }
 
-        if(!$('.error').length) { //If there are no errors!
-          finalizeOrder($('.storeSelected').attr('id'),
-                        $('.pizzaSelected').attr('id'),
-                        $('#size').val(),
-                        $('#name').val(),
-                        $('#email').val(),
-                        $('#msg').val(),
-                        ($('#address').val() + ',' + $('#town').val() +
-                          ',' + $('#zip').val())
-                      );
+          if(!$('.error').length) { //If there are no errors!
+            finalizeOrder($('.storeSelected').attr('id'),
+                          $('.pizzaSelected').attr('id'),
+                          $('#size').val(),
+                          $('#name').val(),
+                          $('#email').val(),
+                          $('#msg').val(),
+                          ($('#address').val() + ',' + $('#town').val() + ',' + $('#state').val() +
+                            ',' + $('#zip').val())
+            );
           }
         });
       });
     });
     var socket = io('http://localhost:3000');
-    function requestStores(address, zip, town) {
-      socket.emit('getStores', { address: address, zip: zip, town: town });
+    function requestStores(address, town, state, zip) {
+      socket.emit('getStores', { address: address, town: town, state: state, zip: zip });
     }
 
     function finalizeOrder(storeId, pizzaId, size, name, email, msg, address) {
-      socket.emit('finalizeOrder', {
-                  storeId: storeId,
-                  pizzaId: pizzaId,
-                  size: size,
-                  name: name,
-                  email: email,
-                  msg: msg,
-                  address: address });
+      if(!$('#finalizeOrder').prop('disabled')) {
+        $('#finalizeOrder').prop('disabled', true);
+        socket.emit('finalizeOrder', {
+                    storeId: storeId,
+                    pizzaId: pizzaId,
+                    size: size,
+                    name: name,
+                    email: email,
+                    msg: msg,
+                    address: address });
+      }
     }
 
     socket.on('giveStores', function(data) {
@@ -133,6 +138,10 @@
                     <div class="form-group">
                         <label for="town">Town</label>
                         <input type="text" class="form-control" id="town" placeholder="Town">
+                    </div>
+                    <div class="form-group">
+                        <label for="zip">State</label>
+                        <input type="text" class="form-control" id="state" placeholder="State">
                     </div>
                     <div class="form-group">
                         <label for="zip">Zip</label>
