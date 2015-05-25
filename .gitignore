@@ -3,3 +3,4 @@ node_modules/
 db_config.json
 db_config
 conf/config.json
+conf.env

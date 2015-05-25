@@ -43,7 +43,7 @@ serverHttp.on('error', onError);
 serverHttp.on('listening', onListening);
 
 console.log("Starting proxy..."); //Proxy so that socket.io can still work. Socket.io acts weird on port 80.
-proxy.createProxyServer({target:'http://localhost:3000'}).listen(80);
+proxy.createProxyServer({target:'http://localhost:5000'}).listen(80);
 
 /**
  * Normalize a port into a number, string, or false.
