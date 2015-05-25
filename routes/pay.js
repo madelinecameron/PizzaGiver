@@ -7,19 +7,19 @@ var router = express.Router();
 /* GET users listing. */
 router.get('/pay/:id', function(req, res) {
     console.log("ID: %s", req.params.id);
-    Order.findOne({orderId: req.params.id}, function (err, order) {
+    Order.findOne({ orderId: req.params.id }, { order: 1, message: 1 }, function (err, order) {
         if (err) {
             console.error("Error: %s", err);
         }
         if (order) { //If order exists
+            console.log(order.order);
             res.render('pay', {
-                friendName: order.name.indexOf(' ') == -1 ? order.name :  //Split name to just first name
-                    order.name.substring(0, order.name.indexOf(' ')),
+                friendName: order.order.FirstName,
                 friendMsg: order.message,
-                pepperoniSelected: (order.pizzaId.options == "P=1" ? "pizzaSelected" : ""),  //Changes which pizza is selected on next screen
-                sausageSelected: (order.pizzaId.options == "S=1" ? "pizzaSelected" : ""),
-                cheeseSelected: (order.pizzaId.options == "" ? "pizzaSelected" : ""),
-                size: order.pizzaId.size,
+                pepperoniSelected: (order.order.Products.Options == "P=1" ? "pizzaSelected" : ""),  //Changes which pizza is selected on next screen
+                sausageSelected: (order.order.Products.Options == "S=1" ? "pizzaSelected" : ""),
+                cheeseSelected: (order.order.Products.Options == "" ? "pizzaSelected" : ""),
+                size: order.order.Products[0].Code.substr(0, 2),  //First two letters are the size
                 orderTotal: "xx.xx"
             });
         }

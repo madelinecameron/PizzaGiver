@@ -15,15 +15,14 @@ var shortid = require('shortid');
 var Order = require('../pizzaDB')(mongoose).Orders;
 var Email = require('../pizzaDB')(mongoose).Emails;
 var proxy = require('http-proxy');
-var config = require('../conf/config.json');
-var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", config.db.user).replace('%PWD%', config.db.password);
+var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", process.env.DB_USER).replace('%PWD%', process.env.DB_PASS);
 mongoose.connect(dbString);
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '5000');
 app.set('port', port);
 
 /**
@@ -129,7 +128,7 @@ ioHttp.on("connection", function(socket) {
 
         newOrder.addItem(new dominos.Item({
             code: data.size.toString() + 'SCREEN',
-            options: options,
+            options: options != '' ? options : {},
             quantity: 1
         }));
 
@@ -143,7 +142,7 @@ ioHttp.on("connection", function(socket) {
         console.log(newOrder);
         Order.create({  //Create the order in the database
             orderId: shortid.generate(),  // Internal Order ID != Dominos Order ID
-            order: JSON.stringify(newOrder),
+            order: newOrder,
             message: data.msg
         }, function(err, order) {
             if(err) {
