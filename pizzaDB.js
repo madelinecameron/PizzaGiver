@@ -1,6 +1,3 @@
-/**
- * Created by Maddie on 2/28/2015.
- */
 var mongoose = require('mongoose');
 var shortid = require('shortid');
 

@@ -11,22 +11,56 @@
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-    <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script>
-    var socket = io('http://give.pizza:3000');
+    var socket = io('localhost:5000');
     Stripe.setPublishableKey('pk_test_tBpAD31uGVOhN7q5cHzawwM8');
     $(function() {
       $('#sendPizza').click(function() {
-          $(this).find('button').prop('disabled', true);
+          $('#checkout').modal('show');
+          var paySubmit = $('#submit');
+          paySubmit.on('click', function() {
+              paySubmit.prop('disabled', true);
+              paySubmit.button('progress');
 
-          Stripe.card.createToken($(this), stripeResponseHandler);
+              setTimeout(function() {
+                  paySubmit.addClass('btn-success').removeClass('btn-primary');
+                  paySubmit.button('success');
+                  $('#checkout').modal('hide');
+              }, 1500);
 
-          return false;
-        }
+              /*var cardNum = $('#card-num').val();
+              var cardExp = $('#card-exp').val().split('/');
+              var cardCVC = $('#card-cvc').val();
+
+              // First submit the card information to Stripe to get back a token
+              Stripe.card.createToken({
+                  number: cardNum,
+                  exp_month: cardExp[0],
+                  exp_year: cardExp[1],
+                  cvc: cardCVC
+              }, function(status, response) {
+                  console.log("Submitted!");
+                  var payForm = $('#form');
+                  var token = response.id;
+
+                  // Save the token into a hidden input field
+                  payForm.append($('<input type="hidden" name="stripeToken" />').val(token));
+
+                  // Now submit the form to our server so it can make the charge against the token
+                  payForm.get(0).submit();
+
+                  // All done!
+                  setTimeout(function() {
+                      $('#checkout').modal('hide');
+                  }, 250);
+              });*/
+
+              return false;
+          });
       });
 
       $(document).on('blur', '*', function() {
@@ -59,22 +93,6 @@
                    .removeClass('alert-danger');
     });
 
-    function stripeResponseHandler(status, response) {
-      var $form = $('#paymentForm');
-
-      if (response.error) {
-        // Show the errors on the form
-        $form.find('#results').text(response.error.message);
-        $form.find('button').prop('disabled', false);
-      } else {
-        // response contains id and card, which contains additional card details
-        var token = response.id;
-        // Insert the token into the form so it gets submitted to the server
-        $form.append($('<input type="hidden" name="stripeToken" />').val(token));
-        // and submit
-        $form.get(0).submit();
-      }
-    };
     </script>
     <div id="banner" class="row">
       <div class="col-md-12">
@@ -113,44 +131,68 @@
             <div class="panel-heading">Selected pizza</div>
             <ul id="storeListings" class="panel-body list-group">
                 <li class="container list-group-item" style="width:inherit;{{#cheeseSelected}}background-color:#6495ed{{/cheeseSelected}}">
-          <div id="cheese" class="{{cheeseSelected}}">Cheese</div>
-        </li>
+                  <div id="cheese" class="{{cheeseSelected}}">Cheese</div>
+                </li>
                 <li class="container list-group-item" style="width:inherit;{{#pepperoniSelected}}background-color:#6495ed{{/pepperoniSelected}}">
-          <div id="pepperoni" class="{{pepperoniSelected}}">Pepperoni</div>
-        </li>
+                  <div id="pepperoni" class="{{pepperoniSelected}}">Pepperoni</div>
+                </li>
                 <li class="container list-group-item" style="width:inherit;{{#sausageSelected}}background-color:#6495ed{{/sausageSelected}}">
-          <div id="sausage" class="{{sausageSelected}}">Sausage</div>
-        </li>
+                  <div id="sausage" class="{{sausageSelected}}">Sausage</div>
+                </li>
             </ul>
-      <label for="size" style="margin-left:5px">Pizza size: {{size}}"</label>
-      <br>
+            <label for="size" style="margin-left:5px">Pizza size: {{size}}"</label>
+            <br>
         </div>
+        <button id="sendPizza" class="btn btn-default">Send Pizza!</button>
         <br>
-        <form action="" method="POST" id="paymentForm">
-            <div class="form-group form-inline">
-                <label for="cc">Card number: </label><br>
-                <input type="text" class="form-control" id="cc" placeholder="Card number" data-stripe="number">
-                <img src="" alt="" id="ccimg" style="height:40px;width:60px"/>
+        <div class="modal fade" id="checkout">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" id="closeModal">&times;</button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form id="payForm" action="/charge" method="POST" class="form-horizontal">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><span class="glyphicon glyphicon-credit-card"></span></span>
+                                        <input id="card-num" class="form-control" type="text" size="16" placeholder="Card number" autofocus="autofocus" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                                        <input id="card-exp" class="form-control" type="text" size="5" placeholder="MM/YY" />
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+                                        <input id="card-cvc" class="form-control" type="text" size="4" placeholder="CVC" />
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button id="submit" type="button" class="btn btn-primary col-sm-12"
+                                data-progress-text="<span class='glyphicon glyphicon-refresh fa-spin'></span>"
+                                data-success-text="<span class='glyphicon glyphicon-ok'></span>"
+                                >
+                            Pay
+                        </button><br/>
+                    </div>
+                    <img src="../public/images/outline.png" class="img-rounded" style="float:left">
+                </div>
             </div>
-            <div class="form-group form-inline">
-                <label>
-                  <span>Expiration (MM/YYYY)</span>
-                  <input type="text" size="2" data-stripe="exp-month"/>
-                </label>
-                <span> / </span>
-                <input type="text" size="4" data-stripe="exp-year"/>
-            </div>
-            <div class="form-group">
-                <label for="seccode">Security Code: </label>
-                <input type="text" class="form-control" id="seccode" placeholder="000" data-stripe="cvc" style="width:50px">
-            </div>
-              <div class="form-group">
-                <label for="zip">Billing ZIP: </label>
-                <input type="text" class="form-control" id="zip" style="width:100px">
-              </div>
-              <button id="sendPizza" type="button" class="btn btn-default" disabled>Send pizza!</button>
-              <div id="results" class="alert" style="display:none"></div>
-        </form>
+        </div>
         <br>
       </div>
 </body>
