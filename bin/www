@@ -14,7 +14,6 @@ var fs = require('fs');
 var shortid = require('shortid');
 var Order = require('../pizzaDB')(mongoose).Orders;
 var Email = require('../pizzaDB')(mongoose).Emails;
-var proxy = require('http-proxy');
 var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", process.env.DB_USER).replace('%PWD%', process.env.DB_PASS);
 mongoose.connect(dbString);
 
@@ -36,14 +35,13 @@ var ioHttp = require('socket.io')(serverHttp); //Socket.io connection
  * Listen on provided port, on all network interfaces.
  */
 
-console.log("Starting server on port 3000...");
+console.log("Starting server on port 5000...");
 serverHttp.listen(port);
 
 serverHttp.on('error', onError);
 serverHttp.on('listening', onListening);
 
 console.log("Starting proxy..."); //Proxy so that socket.io can still work. Socket.io acts weird on port 80.
-proxy.createProxyServer({target:'http://localhost:5000'}).listen(80);
 
 /**
  * Normalize a port into a number, string, or false.
