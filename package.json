@@ -12,6 +12,7 @@
     "dominos": "^0.1.2",
     "express": "~4.11.1",
     "hjs": "~0.0.6",
+    "http-proxy": "^1.11.1",
     "mongoose": "^4.0.1",
     "morgan": "~1.5.1",
     "pizzapi": "0.0.3",
