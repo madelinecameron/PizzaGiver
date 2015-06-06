@@ -42,7 +42,7 @@ app.set('port', port);
  */
 
 var serverHttp = http.createServer(app);
-var ioHttp = require('socket.io').listen(serverHttp); //Socket.io connection
+var ioHttp = require('socket.io').listen(5000); //Socket.io connection
 
 /**
  * Listen on provided port, on all network interfaces.
