@@ -1,8 +1,21 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
+/*  PizzaGiver
+    Copyright (C) 2014 - 2015, Madeline Cameron
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 var app = require('../app');
 var debug = require('debug')('PizzaForYou:server');
@@ -29,7 +42,7 @@ app.set('port', port);
  */
 
 var serverHttp = http.createServer(app);
-var ioHttp = require('socket.io')(serverHttp); //Socket.io connection
+var ioHttp = require('socket.io').listen(5000); //Socket.io connection
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -40,8 +53,6 @@ serverHttp.listen(port);
 
 serverHttp.on('error', onError);
 serverHttp.on('listening', onListening);
-
-console.log("Starting proxy..."); //Proxy so that socket.io can still work. Socket.io acts weird on port 80.
 
 /**
  * Normalize a port into a number, string, or false.
@@ -137,7 +148,7 @@ ioHttp.on("connection", function(socket) {
             Order.create({  //Create the order in the database
                 orderId: shortid.generate(),  // Internal Order ID != Dominos Order ID
                 order: order,
-                message: data.msg
+                message: data.msg != '' ? data.msg : undefined
             }, function(err, order) {
                 if(err) {
                     console.log("Error: " + err);
