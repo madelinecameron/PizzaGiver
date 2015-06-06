@@ -186,7 +186,7 @@
                                 data-progress-text="<span class='glyphicon glyphicon-refresh fa-spin'></span>"
                                 data-success-text="<span class='glyphicon glyphicon-ok'></span>"
                                 >
-                            Pay
+                            Pay ${{orderTotal}}
                         </button><br/>
                     </div>
                     <img src="../public/images/outline.png" class="img-rounded" style="float:left">
