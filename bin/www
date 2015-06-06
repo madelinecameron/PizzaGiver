@@ -42,7 +42,7 @@ app.set('port', port);
  */
 
 var serverHttp = http.createServer(app);
-var ioHttp = require('socket.io')(serverHttp); //Socket.io connection
+var ioHttp = require('socket.io').listen(serverHttp); //Socket.io connection
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -53,8 +53,6 @@ serverHttp.listen(port);
 
 serverHttp.on('error', onError);
 serverHttp.on('listening', onListening);
-
-console.log("Starting proxy..."); //Proxy so that socket.io can still work. Socket.io acts weird on port 80.
 
 /**
  * Normalize a port into a number, string, or false.
