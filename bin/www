@@ -73,7 +73,6 @@ ioHttp.on("connection", function(socket) {
                     if(html == "") {
                         html = "<b>No stores are open or around! ):</b>";
                     }
-                    console.log(html);
                 });
                 socket.emit('giveStores', html.replace('\n', ''));
             });
@@ -88,7 +87,6 @@ ioHttp.on("connection", function(socket) {
                     var template = hogan.compile(data.toString());
                     var stores = storeData.result.Stores;
                     stores.forEach(function (store) {
-                        console.log(store);
                         if (store.IsOpen && store.IsDeliveryStore) {
                             html += template.render(store);
                         }
@@ -107,14 +105,14 @@ ioHttp.on("connection", function(socket) {
         var options = '';
         switch(data.pizzaId) {
             case 'pepperoni':
-                options = 'P=1';
+                options = 'P';
                 break;
             case 'sausage':
-                options = 'S=1';
+                options = 'S';
                 break;
         }
         var splitName = data.name.split(' ');
-        var newOrder = new dominos.Order({
+        var order = new dominos.Order({
             customer: new dominos.Customer({
                 firstName: splitName[0],
                 lastName: splitName[1] !== undefined ? splitName[1] : "",
@@ -124,31 +122,32 @@ ioHttp.on("connection", function(socket) {
             storeID: data.storeId
         });
 
-        newOrder.addItem(new dominos.Item({
+        order.addItem(new dominos.Item({
             code: data.size.toString() + 'SCREEN',
-            options: options != '' ? options : {},
+            options: options,
             quantity: 1
         }));
 
-        newOrder.validate(function(result) {
-            console.log(result);
-        });
+        order.validate(function(result) {
+          order = new dominos.Order(result.result);
 
-        newOrder.price(function(result) {
-            console.log(result);
-        });
-        console.log(newOrder);
-        Order.create({  //Create the order in the database
-            orderId: shortid.generate(),  // Internal Order ID != Dominos Order ID
-            order: newOrder,
-            message: data.msg
-        }, function(err, order) {
-            if(err) {
-                console.log("Error: " + err);
-            }
-            else {
-                socket.emit('orderFinalized', '<p><b>Order URL:</b> http://give.pizza/pay/' + order.orderId + '</p>');
-            }
+          order.price(function(result) {
+            order = new dominos.Order(result.result); //Bad Maddie!
+
+            Order.create({  //Create the order in the database
+                orderId: shortid.generate(),  // Internal Order ID != Dominos Order ID
+                order: order,
+                message: data.msg
+            }, function(err, order) {
+                if(err) {
+                    console.log("Error: " + err);
+                }
+                else {
+                    socket.emit('orderFinalized', '<p><b>Order URL:</b> http://give.pizza/pay/' + order.orderId + '</p>');
+                }
+            });
+
+          });
         });
     });
 

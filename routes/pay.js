@@ -13,14 +13,15 @@ router.get('/pay/:id', function(req, res) {
         }
         if (order) { //If order exists
             console.log(order.order);
+            console.log(order.order.Products[0]);
             res.render('pay', {
                 friendName: order.order.FirstName,
                 friendMsg: order.message,
-                pepperoniSelected: (order.order.Products.Options == "P=1" ? "pizzaSelected" : ""),  //Changes which pizza is selected on next screen
-                sausageSelected: (order.order.Products.Options == "S=1" ? "pizzaSelected" : ""),
-                cheeseSelected: (order.order.Products.Options == "" ? "pizzaSelected" : ""),
+                pepperoniSelected: (order.order.Products[0].Options["P"] ? "pizzaSelected" : ""),  //Changes which pizza is selected on next screen
+                sausageSelected: (order.order.Products[0].Options["S"] ? "pizzaSelected" : ""),
+                cheeseSelected: (order.order.Products[0].Options == {} ? "pizzaSelected" : ""),
                 size: order.order.Products[0].Code.substr(0, 2),  //First two letters are the size
-                orderTotal: "xx.xx"
+                orderTotal: order.order.Amounts.Customer.toFixed(2)
             });
         }
         else {
