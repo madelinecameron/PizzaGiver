@@ -148,7 +148,7 @@ ioHttp.on("connection", function(socket) {
             Order.create({  //Create the order in the database
                 orderId: shortid.generate(),  // Internal Order ID != Dominos Order ID
                 order: order,
-                message: data.msg
+                message: data.msg != '' ? data.msg : undefined
             }, function(err, order) {
                 if(err) {
                     console.log("Error: " + err);
