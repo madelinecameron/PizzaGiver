@@ -44,7 +44,7 @@ app.set('port', port);
 
 var serverHttp = http.createServer(app);
 var ioHttp = require('socket.io')(serverHttp); //Socket.io connection
-httpProxy.createProxyServer({target:'http://localhost:5000'}).listen(port);
+proxy.createProxyServer({target:'http://localhost:5000'}).listen(port);
 
 /**
  * Listen on provided port, on all network interfaces.
