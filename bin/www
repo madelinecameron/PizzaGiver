@@ -35,7 +35,7 @@ mongoose.connect(dbString);
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort('5000');
+var port = normalizePort(process.env.PORT);
 app.set('port', port);
 
 /**
@@ -44,7 +44,7 @@ app.set('port', port);
 
 var serverHttp = http.createServer(app);
 var ioHttp = require('socket.io')(serverHttp); //Socket.io connection
-//proxy.createProxyServer({target:'http://localhost:' + port}).listen(5000);
+proxy.createProxyServer({target:'http://localhost:' + port}).listen(5000);
 
 /**
  * Listen on provided port, on all network interfaces.
