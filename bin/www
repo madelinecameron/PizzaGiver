@@ -25,6 +25,7 @@ var hogan = require('hjs');
 var mongoose = require('mongoose');
 var fs = require('fs');
 var shortid = require('shortid');
+var proxy = require('http-proxy');
 var Order = require('../pizzaDB')(mongoose).Orders;
 var Email = require('../pizzaDB')(mongoose).Emails;
 var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", process.env.DB_USER).replace('%PWD%', process.env.DB_PASS);
@@ -42,13 +43,14 @@ app.set('port', port);
  */
 
 var serverHttp = http.createServer(app);
-var ioHttp = require('socket.io').listen(5000); //Socket.io connection
+var ioHttp = require('socket.io')(serverHttp); //Socket.io connection
+httpProxy.createProxyServer({target:'http://localhost:5000'}).listen(port);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-console.log("Starting server on port 5000...");
+console.log("Starting server on port %s...", port);
 serverHttp.listen(port);
 
 serverHttp.on('error', onError);
