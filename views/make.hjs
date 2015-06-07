@@ -74,7 +74,7 @@
         });
       });
     });
-    var socket = io('give.pizza:5000');
+    var socket = io('http://give.pizza:14000');
     function requestStores(address, town, state, zip) {
       socket.emit('getStores', { address: address, town: town, state: state, zip: zip });
     }
