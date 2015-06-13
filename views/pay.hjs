@@ -16,7 +16,7 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
     <script>
-    var socket = io('http://give.pizza:5000');
+    var socket = io('http://give.pizza');
     Stripe.setPublishableKey('pk_test_tBpAD31uGVOhN7q5cHzawwM8');
     $(function() {
       $('#sendPizza').click(function() {
