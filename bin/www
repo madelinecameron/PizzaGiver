@@ -43,8 +43,6 @@ app.set('port', port);
  */
 
 var serverHttp = http.createServer(app);
-var ioHttp = require('socket.io')(serverHttp); //Socket.io connection
-proxy.createProxyServer({target:'http://localhost:5000'}).listen(port);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -52,6 +50,8 @@ proxy.createProxyServer({target:'http://localhost:5000'}).listen(port);
 
 console.log("Starting server on port %s...", port);
 serverHttp.listen(port);
+
+var ioHttp = require('socket.io').listen(serverHttp); //Socket.io connection
 
 serverHttp.on('error', onError);
 serverHttp.on('listening', onListening);
