@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
     <!-- Latest compiled and minified CSS -->
@@ -26,6 +26,10 @@
       });
 
       $('#finalizeOrder').click(function() {
+        $('#results').text('');
+        $('#results').css('display', 'none');
+        var storeErrorSet = false;
+        var pizzaErrorSet = false;
         var checkList = [
           '#name',
           '#email',
@@ -41,17 +45,19 @@
                           .removeClass('alert-success')
                           .toggleClass('alert-danger error', true);
           }
-          if(!$('.storeSelected').length) {
+          if(!$('.storeSelected').length && !storeErrorSet) {
             $('#results').append("<b>No store selected!</b><br>")
                           .css('display', 'block')
                           .removeClass('alert-success')
                           .toggleClass('alert-danger error', true);
+            storeErrorSet = true;
           }
-          if(!$('.pizzaSelected').length) {
+          if(!$('.pizzaSelected').length && !pizzaErrorSet) {
             $('#results').append("<b>No pizza selected!</b><br>")
                           .css('display', 'block')
                           .removeClass('alert-success')
                           .toggleClass('alert-danger error', true);
+            pizzaErrorSet = true;
           }
 
           if(!$('.error').length) { //If there are no errors!
@@ -68,7 +74,7 @@
         });
       });
     });
-    var socket = io('http://localhost:5000');
+    var socket = io('http://give.pizza');
     function requestStores(address, town, state, zip) {
       socket.emit('getStores', { address: address, town: town, state: state, zip: zip });
     }

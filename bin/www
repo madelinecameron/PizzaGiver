@@ -1,20 +1,33 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
+/*  PizzaGiver
+    Copyright (C) 2014 - 2015, Madeline Cameron
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 var app = require('../app');
 var debug = require('debug')('PizzaForYou:server');
 var http = require('http');
-var dominos = require('../node_modules/node-dominos-pizza-api/dominos-pizza-api');
+var dominos = require('pizzapi');
 var hogan = require('hjs');
 var mongoose = require('mongoose');
 var fs = require('fs');
 var shortid = require('shortid');
+var proxy = require('http-proxy');
 var Order = require('../pizzaDB')(mongoose).Orders;
 var Email = require('../pizzaDB')(mongoose).Emails;
-var proxy = require('http-proxy');
 var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", process.env.DB_USER).replace('%PWD%', process.env.DB_PASS);
 mongoose.connect(dbString);
 
@@ -22,7 +35,7 @@ mongoose.connect(dbString);
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '5000');
+var port = normalizePort(process.env.PORT);
 app.set('port', port);
 
 /**
@@ -30,20 +43,18 @@ app.set('port', port);
  */
 
 var serverHttp = http.createServer(app);
-var ioHttp = require('socket.io')(serverHttp); //Socket.io connection
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-console.log("Starting server on port 3000...");
+console.log("Starting server on port %s...", port);
 serverHttp.listen(port);
+
+var ioHttp = require('socket.io').listen(serverHttp); //Socket.io connection
 
 serverHttp.on('error', onError);
 serverHttp.on('listening', onListening);
-
-console.log("Starting proxy..."); //Proxy so that socket.io can still work. Socket.io acts weird on port 80.
-proxy.createProxyServer({target:'http://localhost:3000'}).listen(80);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -75,7 +86,6 @@ ioHttp.on("connection", function(socket) {
                     if(html == "") {
                         html = "<b>No stores are open or around! ):</b>";
                     }
-                    console.log(html);
                 });
                 socket.emit('giveStores', html.replace('\n', ''));
             });
@@ -90,7 +100,6 @@ ioHttp.on("connection", function(socket) {
                     var template = hogan.compile(data.toString());
                     var stores = storeData.result.Stores;
                     stores.forEach(function (store) {
-                        console.log(store);
                         if (store.IsOpen && store.IsDeliveryStore) {
                             html += template.render(store);
                         }
@@ -109,14 +118,14 @@ ioHttp.on("connection", function(socket) {
         var options = '';
         switch(data.pizzaId) {
             case 'pepperoni':
-                options = 'P=1';
+                options = 'P';
                 break;
             case 'sausage':
-                options = 'S=1';
+                options = 'S';
                 break;
         }
         var splitName = data.name.split(' ');
-        var newOrder = new dominos.Order({
+        var order = new dominos.Order({
             customer: new dominos.Customer({
                 firstName: splitName[0],
                 lastName: splitName[1] !== undefined ? splitName[1] : "",
@@ -126,31 +135,32 @@ ioHttp.on("connection", function(socket) {
             storeID: data.storeId
         });
 
-        newOrder.addItem(new dominos.Item({
+        order.addItem(new dominos.Item({
             code: data.size.toString() + 'SCREEN',
-            options: options != '' ? options : {},
+            options: options,
             quantity: 1
         }));
 
-        newOrder.validate(function(result) {
-            console.log(result);
-        });
+        order.validate(function(result) {
+          order = new dominos.Order(result.result);
 
-        newOrder.price(function(result) {
-            console.log(result);
-        });
-        console.log(newOrder);
-        Order.create({  //Create the order in the database
-            orderId: shortid.generate(),  // Internal Order ID != Dominos Order ID
-            order: newOrder,
-            message: data.msg
-        }, function(err, order) {
-            if(err) {
-                console.log("Error: " + err);
-            }
-            else {
-                socket.emit('orderFinalized', '<p><b>Order URL:</b> http://give.pizza/pay/' + order.orderId + '</p>');
-            }
+          order.price(function(result) {
+            order = new dominos.Order(result.result); //Bad Maddie!
+
+            Order.create({  //Create the order in the database
+                orderId: shortid.generate(),  // Internal Order ID != Dominos Order ID
+                order: order,
+                message: data.msg != '' ? data.msg : undefined
+            }, function(err, order) {
+                if(err) {
+                    console.log("Error: " + err);
+                }
+                else {
+                    socket.emit('orderFinalized', '<p><b>Order URL:</b> http://give.pizza/pay/' + order.orderId + '</p>');
+                }
+            });
+
+          });
         });
     });
 

@@ -8,16 +8,10 @@
         </div>
         <div class="col-md-1">
             {{#AllowDeliveryOrders}}
-                <p class="bg-success text-center">Delivers</p>
-            {{/AllowDeliveryOrders}}
-            {{^AllowDeliveryOrders}}
-                <p class="bg-danger text-center">Delivers</p>
+                <p class="text-center">Delivers</p>
             {{/AllowDeliveryOrders}}
             {{#AllowCarryoutOrders}}
-                <p class="bg-success text-center">Carryout</p>
-            {{/AllowCarryoutOrders}}
-            {{^AllowCarryoutOrders}}
-                <p class="bg-danger text-center">Carryout</p>
+                <p class="text-center">Carryout</p>
             {{/AllowCarryoutOrders}}
         </div>
     </div>
