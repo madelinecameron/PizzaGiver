@@ -1,6 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
-var Order = require('../pizzaDB')(mongoose).Orders;
+var Order = require('../pizzaDB');
 
 var router = express.Router();
 
@@ -12,13 +12,18 @@ router.get('/pay/:id', function(req, res) {
             console.error("Error: %s", err);
         }
         if (order) { //If order exists
-            console.log(order.order);
-            console.log(order.order.Products[0]);
+            console.dir(order.order.Products[0]);
+            var pepSelected = "";
+            var sausageSelected = "";
+            if(typeof order.order.Products[0].Options !== "undefined") {
+              pepSelected = (order.order.Products[0].Options["P"] ? "pizzaSelected" : "");
+              sausageSelected = (order.order.Products[0].Options["S"] ? "pizzaSelected" : "");
+            }
             res.render('pay', {
                 friendName: order.order.FirstName,
                 friendMsg: order.message,
-                pepperoniSelected: (order.order.Products[0].Options["P"] ? "pizzaSelected" : ""),  //Changes which pizza is selected on next screen
-                sausageSelected: (order.order.Products[0].Options["S"] ? "pizzaSelected" : ""),
+                pepperoniSelected: pepSelected,  //Changes which pizza is selected on next screen
+                sausageSelected: sausageSelected,
                 cheeseSelected: (order.order.Products[0].Options == {} ? "pizzaSelected" : ""),
                 size: order.order.Products[0].Code.substr(0, 2),  //First two letters are the size
                 orderTotal: order.order.Amounts.Customer.toFixed(2)

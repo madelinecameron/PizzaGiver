@@ -26,8 +26,7 @@ var mongoose = require('mongoose');
 var fs = require('fs');
 var shortid = require('shortid');
 var proxy = require('http-proxy');
-var Order = require('../pizzaDB')(mongoose).Orders;
-var Email = require('../pizzaDB')(mongoose).Emails;
+var Order = require('../pizzaDB');
 var dbString = "mongodb://%USER%:%PWD%@ds047911.mongolab.com:47911/pizzaforyou".replace("%USER%", process.env.DB_USER).replace('%PWD%', process.env.DB_PASS);
 mongoose.connect(dbString);
 
@@ -92,7 +91,7 @@ ioHttp.on("connection", function(socket) {
         }
 
         if(data.address != '' && data.town != '' && data.state != '') {
-            dominos.Util.findNearbyStores([data.address, data.town + ',' + data.state + ',' + data.zip], 'Delivery', function(storeData) {
+            dominos.Util.findNearbyStores([data.address, data.town, data.state, data.zip], 'Delivery', function(storeData) {
                 fs.readFile('./views/store.hjs', function(err, data) {
                     if (err) {
                         console.log(err);
