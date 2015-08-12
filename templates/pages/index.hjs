@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="jumbotron">
+          <h1>give.pizza!</h1>
+          <p>For semi-anonymous 'drop shipping' a pizzas to real-life friends, internet friends or even strangers!
+          One person creates an order and another person pays for the order online. Never again will you have to suffer through cries
+          of friends being pizza-less or foodless! </p>
+          <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Who created this?</h3>
+            </div>
+            <div class="panel-body">
+              Blah blah blah
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-md-offset-2">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Why?</h3>
+            </div>
+            <div class="panel-body">
+              Because.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

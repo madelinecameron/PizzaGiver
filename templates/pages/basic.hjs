@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> {{ title }} </title>
+  </head>
+  <body>
+    <div class="container">
+
+      {{#isMakePage}}
+      <div class="row">
+        <div class="col-md-8">
+        </div>
+        <div id="orderBox" class="col-md-4" style="position: fixed">
+        </div>
+      </div>
+      {{/isMakePage}}
+      {{^isMakePage}}
+      <div class="row">
+        <div class="col-md-12">
+        </div>
+      </div>
+      {{/isMakePage}}
+    </div>
+  </body>
+</html>
