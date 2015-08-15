@@ -5,16 +5,21 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var sequelize = require('sequelize');
+var handlebars  = require('express-handlebars');
 
-var home = require('./src/home');
-var make = require('./src/make');
-var pay = require('./src/pay');
+var home = require('./controllers/home');
+var make = require('./controllers/make');
+var pay = require('./controllers/pay');
 
 var app = express();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hjs');
+app.engine('handlebars', handlebars({
+  layoutsDir: __dirname + '/views/completes',
+  partialsDir: __dirname + '/views/partials'
+}));
+
+app.set('views', __dirname + '/views/completes');
+app.set('view engine', 'handlebars');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -50,8 +55,8 @@ if (app.get('env') === 'development') {
   });
 }
 
-// production error handler
-// no stacktraces leaked to user
+// // production error handler
+// // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {

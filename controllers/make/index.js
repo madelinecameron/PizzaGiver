@@ -4,11 +4,11 @@ var router = express.Router();
 router.get('/', function(req, res, next) {
   var pageParameters = {
     title: 'give.pizza - Make',
-    isMakePage: true,
-    url: process.env.isProd ? 'http://give.pizza' : 'localhost'
+    isMake: true,
+    url: process.env.isProd ? 'http://give.pizza' : 'localhost:5000'
   };
 
-  res.render('make', pageParameters);
+  res.render('basic', pageParameters);
 });
 
 module.exports = router;

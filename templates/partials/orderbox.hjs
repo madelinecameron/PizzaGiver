@@ -1,7 +1,0 @@
-<div class="listgroup" id="orderList">
-</div>
-
-<div class="input-group">
-  <span class="input-group-addon">Total: $</span>
-  <p>0.00<p>
-</div>
