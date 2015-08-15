@@ -3,7 +3,7 @@ var handlebars = require('handlebars');
 var fs = require('fs');
 var sequelize = require('sequelize');
 
-module.exports = function(server) {
+module.exports = function(server, db, Order) {
   var optionsTranslation = {
     'Pepperoni': 'P',
     'Sausage': 'S'
@@ -72,6 +72,14 @@ module.exports = function(server) {
       }
 
       console.log(order);
+
+      order.validate(function(results) {
+        var newOrder = new pizzapi.Order(results.result);
+        console.log(newOrder);
+        newOrder.price(function(results) {
+          console.log(results);
+        })
+      })
     });
   });
 }
