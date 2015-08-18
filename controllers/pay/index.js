@@ -1,14 +1,31 @@
 var express = require('express');
 var router = express.Router();
 
-router.get('/:id', function(req, res, next) {
-  var pageParameters = {
-    title: 'give.pizza - Pay',
-    isMakePage: false,
-    url: process.env.isProd ? 'http://give.pizza' : 'localhost:5000'
-  };
+module.exports = function(db, Order) {
+  router.get('/:id', function(req, res, next) {
+    Order.findOne({
+      where: {
+        id: req.params.id
+      }
+    }).then(function(order) {
+      order.get({
+        plain: true
+      });
 
-  res.render('pay', pageParameters);
-});
+      var selectedOrder = order.dataValues.Order;
 
-module.exports = router;
+      var pageParameters = {
+        title: 'give.pizza - Pay',
+        isMake: false,
+        url: Boolean(process.env.IS_PROD) ? 'http://give.pizza' : 'localhost:5000',
+        pizzaItems: selectedOrder.Products,
+        orderTotal: selectedOrder.Amounts.Payment,
+        friendName: selectedOrder.FirstName
+      };
+
+      res.render('basic', pageParameters);
+    });
+  });
+
+  return router;
+}

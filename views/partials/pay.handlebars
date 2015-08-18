@@ -1,0 +1,46 @@
+<script>
+var socket = io('{{ url }}');
+
+$(function() {
+  $('#submitPayment').on('click', function() {
+
+  });
+});
+
+</script>
+<div class="container panel panel-default">
+  <br/>
+  <div>
+    <p><b>First name:</b> {{friendName}}</p>
+  </div>
+  <div>
+    <p><b>Total:</b> ${{orderTotal}}</p>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading"><b>Items</b></div>
+    <div class="panel-body">
+          {{#each pizzaItems}}
+            <p>{{Name}} - ${{Price}}</p>
+          {{/each}}
+    </div>
+  </div>
+
+  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#payModal">Pay</button><br/><br/>
+</div>
+
+<div class="modal fade" id="payModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Payment Info</h4>
+      </div>
+      <div class="modal-body">
+        <p>One fine body&hellip;</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="submitPayment" class="btn btn-primary">Pay</button>
+      </div>
+    </div>
+  </div>
+</div>

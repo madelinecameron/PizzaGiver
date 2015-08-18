@@ -71,13 +71,25 @@ module.exports = function(server, db, Order) {
         }));
       }
 
-      console.log(order);
-
       order.validate(function(results) {
         var newOrder = new pizzapi.Order(results.result);
-        console.log(newOrder);
         newOrder.price(function(results) {
-          console.log(results);
+
+          db.sync().then(function() {
+            Order.create({
+              Order: results.result.Order
+            }).then(function(order) {
+              var storedOrder = order.get({
+                plain: true
+              });
+
+              socket.emit('order:create:success', {
+                baseURL: process.env.IS_PROD ? 'give.pizza' : 'localhost:5000',
+                orderID: storedOrder.id
+              });
+
+            });
+          });
         })
       })
     });

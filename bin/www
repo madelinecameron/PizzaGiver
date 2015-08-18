@@ -5,13 +5,21 @@
  */
 
 var Sequelize = require('sequelize');
-var sequelize = new Sequelize('rollaroomies', process.env.DB_USER, process.env_DB_PASS, {
+console.log("A: " + process.env.DB_USER);
+console.log("A: " + process.env.DB_PASS);
+console.log("A: " + process.env.DB_URL);
+var sequelize = new Sequelize('givepizza', process.env.DB_USER, process.env_DB_PASS, {
   host: process.env.DB_URL,
-  dialect: 'postgres'
+  dialect: 'postgres',
+  pool: {
+    max: 5,
+    min: 0,
+    idle: 10000
+  }
 });
 
 var Order = require('../models/Order')(sequelize);
-var app = require('../app');
+var app = require('../app')(sequelize, Order);
 var debug = require('debug')('PizzaGiver:server');
 var http = require('http');
 

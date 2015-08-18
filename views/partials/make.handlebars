@@ -13,6 +13,15 @@
     $('#orderBox').css('display', 'inline');
   });
 
+  socket.on('order:create:success', function(res) {
+    $('#orderResults').html("<b>Order URL: " + res.baseURL + "/" + res.orderID + "</b>").parent().parent().addClass('alert-success');
+  });
+
+  socket.on('order:create:fail', function(res) {
+    console.log("DSF");
+    $('#orderResults').html("<b>Order URL: " + res.baseURL + "/pay/" + res.orderID + "</b>");
+  });
+
   $(function() {
     $('#addressSubmit').on('click', function() {
       socket.emit('find:store', {
@@ -204,11 +213,16 @@
             </div>
             <button type="button" id="orderSubmit" class="btn btn-default">Create Order</button>
           </form>
-          <div id="orderResults"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-body">
+        <div id="orderResults"></div>
         </div>
       </div>
     </div>
   </div>
+
   <div id="orderBox" class="col-md-4 col-md-push-8" style="display:none; position: fixed">
     <div class="panel panel-primary">
       <div class="panel-heading form-group-sm">
