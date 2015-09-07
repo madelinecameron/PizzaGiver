@@ -83,6 +83,7 @@ module.exports = function(server, db, Order) {
                 plain: true
               });
 
+              console.log(storedOrder.id);
               socket.emit('order:create:success', {
                 baseURL: process.env.IS_PROD ? 'give.pizza' : 'localhost:5000',
                 orderID: storedOrder.id
