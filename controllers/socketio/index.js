@@ -74,7 +74,7 @@ module.exports = function(server, db, Order) {
       order.validate(function(results) {
         var newOrder = new pizzapi.Order(results.result);
         newOrder.price(function(results) {
-
+          console.log(newOrder);
           db.sync().then(function() {
             Order.create({
               Order: results.result.Order
