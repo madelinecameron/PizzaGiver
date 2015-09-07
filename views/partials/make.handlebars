@@ -14,12 +14,18 @@
   });
 
   socket.on('order:create:success', function(res) {
-    $('#orderResults').html("<b>Order URL: " + res.baseURL + "/" + res.orderID + "</b>").parent().parent().addClass('alert-success');
+    $('#orderResults').html(("<b>Order URL: " + res.baseURL +
+        "/pay/" + res.orderID + "</b>"))
+        .parent()
+        .parent()
+        .addClass('alert-success');
   });
 
   socket.on('order:create:fail', function(res) {
-    console.log("DSF");
-    $('#orderResults').html("<b>Order URL: " + res.baseURL + "/pay/" + res.orderID + "</b>");
+    $('#orderResults').html("Failure, try again")
+        .parent()
+        .parent()
+        .addClass('alert-failure');
   });
 
   $(function() {
@@ -76,10 +82,12 @@
 
       var selectedList = $('#pizzaList').find("li[class~='btn-primary']");
       for(var i = 0; i < selectedList.length; i++) {
-        if($.trim($(selectedList[i]).text()) != "Cheese" && $.trim($(topNode).text()) == "Cheese") {
+        if($.trim($(selectedList[i]).text()) != "Cheese" &&
+            $.trim($(topNode).text()) == "Cheese") {
           return;
         }
-        if($.trim($(selectedList[i]).text()) == "Cheese" && $.trim($(topNode).text()) != "Cheese") {
+        if($.trim($(selectedList[i]).text()) == "Cheese" &&
+            $.trim($(topNode).text()) != "Cheese") {
           return;
         }
       }
@@ -107,7 +115,8 @@
         size: size
       });
 
-      $('#orderList').append("<li class='list-group-item'>" + size + "\" " + name + " pizza</li>");
+      $('#orderList').append(("<li class='list-group-item'>" + size + "\" "
+                                + name + " pizza</li>"));
       $('#deliveryInfo').removeAttr('style');
     });
 
@@ -118,12 +127,16 @@
         City: $('#city').val(),
         Region: $('#state').val(),
         PostalCode: $('#zip').val(),
-        firstName: $('#name').val().split(' ')[0],
-        lastName: $('#name').val().split(' ').length > 1 ? $('#name').val().split(' ')[1] : '',
+        firstName: $('#name').val()
+                            .split(' ')[0],
+        lastName: $('#name').val()
+                            .split(' ')
+                            .length > 1 ? $('#name').val().split(' ')[1] : '',
         email: $('#email').val(),
         phone: $('#phone').val(),
         order: currentOrder,
-        storeID: $('#storeList').find("div[class~='btn-primary']").attr('id')
+        storeID: $('#storeList').find("div[class~='btn-primary']")
+                                .attr('id')
       })
     });
   });
@@ -139,18 +152,23 @@
         <div class="panel-body">
           <form name="addressForm">
             <div class="form-group">
-              <input type="text" class="form-control" id="street" placeholder="Address">
+              <input type="text" class="form-control" id="street"
+                        placeholder="Address">
             </div>
             <div class="form-group">
-              <input type="text" class="form-control" id="city" placeholder="City">
+              <input type="text" class="form-control" id="city"
+                        placeholder="City">
             </div>
             <div class="form-group">
-              <input type="text" class="form-control" id="state" placeholder="State">
+              <input type="text" class="form-control" id="state"
+                        placeholder="State">
             </div>
             <div class="form-group">
-              <input type="text" class="form-control" id="zip" placeholder="ZIP Code">
+              <input type="text" class="form-control" id="zip"
+                        placeholder="ZIP Code">
             </div>
-            <button type="button" id="addressSubmit" class="btn btn-default">Find nearby stores</button>
+            <button type="button" id="addressSubmit"
+                        class="btn btn-default">Find nearby stores</button>
           </form>
         </div>
       </div>
@@ -172,13 +190,16 @@
       </div>
       <div class="panel-body">
         <ul class="list-group" id="pizzaList">
-          <li class="container list-group-item btn-default" id="cheese" style="width:inherit">
+          <li class="container list-group-item btn-default" id="cheese"
+                    style="width:inherit">
             <div>Cheese</div>
           </li>
-          <li class="container list-group-item btn-default" id="pepperoni" style="width:inherit">
+          <li class="container list-group-item btn-default" id="pepperoni"
+                    style="width:inherit">
             <div>Pepperoni</div>
           </li>
-          <li class="container list-group-item btn-default" id="sausage" style="width:inherit">
+          <li class="container list-group-item btn-default" id="sausage"
+                    style="width:inherit">
             <div>Sausage</div>
           </li>
         </ul>
@@ -191,7 +212,8 @@
           <option value="16">X-Large</option>
         </select>
         <br>
-        <button type="button" id="addToOrder" class="btn btn-default">Add to order</button>
+        <button type="button" id="addToOrder"
+                    class="btn btn-default">Add to order</button>
       </div>
     </div>
 
@@ -203,15 +225,19 @@
         <div class="panel-body">
           <form name="addressForm">
             <div class="form-group">
-              <input type="text" class="form-control" id="name" placeholder="Name">
+              <input type="text" class="form-control" id="name"
+                        placeholder="Name">
             </div>
             <div class="form-group">
-              <input type="tel" class="form-control" id="phone" placeholder="Phone">
+              <input type="tel" class="form-control" id="phone"
+                        placeholder="Phone">
             </div>
             <div class="form-group">
-              <input type="email" class="form-control" id="email" placeholder="Email">
+              <input type="email" class="form-control" id="email"
+                        placeholder="Email">
             </div>
-            <button type="button" id="orderSubmit" class="btn btn-default">Create Order</button>
+            <button type="button" id="orderSubmit"
+                        class="btn btn-default">Create Order</button>
           </form>
       </div>
     </div>
@@ -223,7 +249,8 @@
     </div>
   </div>
 
-  <div id="orderBox" class="col-md-4 col-md-push-8" style="display:none; position: fixed">
+  <div id="orderBox" class="col-md-4 col-md-push-8"
+            style="display:none; position: fixed">
     <div class="panel panel-primary">
       <div class="panel-heading form-group-sm">
         <h6 class="panel-title  form-group-sm">Order</h6>

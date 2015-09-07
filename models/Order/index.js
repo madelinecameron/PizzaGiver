@@ -5,7 +5,8 @@ module.exports = function(db) {
     id: {
       type: Sequelize.UUID,
       unique: true,
-      defaultValue: Sequelize.UUIDV4
+      defaultValue: Sequelize.UUIDV4,
+      primaryKey: true
     },
     Order: Sequelize.JSON
   });
