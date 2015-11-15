@@ -13,7 +13,7 @@ var sequelize = new Sequelize('givepizza', process.env.DB_USER, process.env_DB_P
   dialect: 'postgres',
   pool: {
     max: 5,
-    min: 0,
+    min: 1,
     idle: 10000
   }
 });
