@@ -1,0 +1,265 @@
+<script>
+  var currentOrder = [];
+  var socket = io('{{ url }}');
+
+  socket.on('store:find', function (res) {
+    $('#storeList').html(res.stores);
+    $('#storesContainer').removeAttr('style');  //Removes display: none
+  });
+
+  socket.on('item:find', function(res) {
+    $('#itemList').html(res.items);
+    $('#itemsContainer').removeAttr('style');
+    $('#orderBox').css('display', 'inline');
+  });
+
+  socket.on('order:create:success', function(res) {
+    console.log(res.orderID);
+    $('#orderResults').html(("<b>Order URL: " + res.baseURL +
+        "/pay/" + res.orderID + "</b>"))
+        .parent()
+        .parent()
+        .addClass('alert-success');
+  });
+
+  socket.on('order:create:fail', function(res) {
+    $('#orderResults').html("Failure, try again")
+        .parent()
+        .parent()
+        .addClass('alert-failure');
+  });
+
+  $(function() {
+    $('#addressSubmit').on('click', function() {
+      socket.emit('find:store', {
+        Street: $('#street').val(),
+        City: $('#city').val(),
+        Region: $('#state').val(),
+        PostalCode: $('#zip').val()
+      });
+
+      $('#addressSubmit').prop('disabled', true);
+    });
+
+    //Register child clicks for all stores
+    $('#storeList').on('click', '*', function(e) {
+      e.stopPropagation();  //Stops event bubbling
+      var topNode;
+      if($(this).prop('id') == "") { topNode = $(this).parent(); }
+
+      while($(topNode).prop('id') == "") {
+        topNode = $(topNode).parent();
+      }
+
+      console.log($(topNode));
+
+      if(!$(topNode).hasClass('btn-primary')) {
+        $(topNode).removeClass('btn-default').addClass('btn-primary');
+
+        window.setTimeout(function() {
+          socket.emit('find:item', {
+            storeID: $(topNode).attr('id')
+          });
+        }, 500);
+      }
+      else {
+        $(topNode).removeClass('btn-primary').addClass('btn-default');
+
+        $('#itemList').html('');
+        $('#itemsContainer').css('display', 'none');
+        $('#orderBox').css('display', 'none');
+      }
+    }); //To prevent flooding
+
+    $('#pizzaList').on('click', '*', function(e) {
+      e.stopPropagation();  //Stops event bubbling
+      var topNode;
+      if(!$(this).is('li')) {
+        topNode = $(this).parent();
+      }
+      else {
+        topNode = this;
+      }
+
+      var selectedList = $('#pizzaList').find("li[class~='btn-primary']");
+      for(var i = 0; i < selectedList.length; i++) {
+        if($.trim($(selectedList[i]).text()) != "Cheese" &&
+            $.trim($(topNode).text()) == "Cheese") {
+          return;
+        }
+        if($.trim($(selectedList[i]).text()) == "Cheese" &&
+            $.trim($(topNode).text()) != "Cheese") {
+          return;
+        }
+      }
+
+      if(!$(topNode).hasClass('btn-primary')) {
+        $(topNode).removeClass('btn-default').addClass('btn-primary');
+      }
+      else {
+        $(topNode).removeClass('btn-primary').addClass('btn-default');
+      }
+    });
+
+    $('#addToOrder').on('click', function() {
+      var size = $('#pizzaSize').val();
+      var selectedList = $('#pizzaList').find("li[class~='btn-primary']")
+      var name = "";
+
+      //.text() can be called on the raw list but results in extraneous space and newlines.
+      for(var i = 0; i < selectedList.length; i++) {
+        name += ($.trim($(selectedList[i]).text().replace('\n', '')) + " ");
+      };
+
+      currentOrder.push({
+        options: $.trim(name).split(' '),  //Trim to remove last space.
+        size: size
+      });
+
+      $('#orderList').append(("<li class='list-group-item'>" + size + "\" "
+                                + name + " pizza</li>"));
+      $('#deliveryInfo').removeAttr('style');
+    });
+
+    $('#orderSubmit').on('click', function() {
+      console.log($('#storeList').find("div[class~='btn-primary']").attr('id'));
+      socket.emit('create:order', {
+        Street: $('#street').val(),
+        City: $('#city').val(),
+        Region: $('#state').val(),
+        PostalCode: $('#zip').val(),
+        firstName: $('#name').val()
+                            .split(' ')[0],
+        lastName: $('#name').val()
+                            .split(' ')
+                            .length > 1 ? $('#name').val().split(' ')[1] : '',
+        email: $('#email').val(),
+        phone: $('#phone').val(),
+        order: currentOrder,
+        storeID: $('#storeList').find("div[class~='btn-primary']")
+                                .attr('id')
+      })
+    });
+  });
+</script>
+
+<div class="row">
+  <div class="col-md-8 pull-left">
+    <div id="addressInput">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span>Delivery Address</span>
+        </div>
+        <div class="panel-body">
+          <form name="addressForm">
+            <div class="form-group">
+              <input type="text" class="form-control" id="street"
+                        placeholder="Address">
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="city"
+                        placeholder="City">
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="state"
+                        placeholder="State">
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="zip"
+                        placeholder="ZIP Code">
+            </div>
+            <button type="button" id="addressSubmit"
+                        class="btn btn-default">Find nearby stores</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-default" id="storesContainer" style="display: none">
+      <div class="panel-heading">
+        <span>Nearby Stores</span>
+      </div>
+      <div class="panel-body">
+        <div class="list-group" id="storeList">
+        </div>
+      </div>
+    </div>
+
+    <div class="panel panel-default" id="itemsContainer" style="display: none">
+      <div class="panel-heading">
+        <span>Create your order</span>
+      </div>
+      <div class="panel-body">
+        <ul class="list-group" id="pizzaList">
+          <li class="container list-group-item btn-default" id="cheese"
+                    style="width:inherit">
+            <div>Cheese</div>
+          </li>
+          <li class="container list-group-item btn-default" id="pepperoni"
+                    style="width:inherit">
+            <div>Pepperoni</div>
+          </li>
+          <li class="container list-group-item btn-default" id="sausage"
+                    style="width:inherit">
+            <div>Sausage</div>
+          </li>
+        </ul>
+        <label for="pizzaSize" style="margin-left:5px">Pizza size</label>
+        <br>
+        <select id="pizzaSize" class="form-control">
+          <option value="10">Small</option>
+          <option value="12">Medium</option>
+          <option value="14">Large</option>
+          <option value="16">X-Large</option>
+        </select>
+        <br>
+        <button type="button" id="addToOrder"
+                    class="btn btn-default">Add to order</button>
+      </div>
+    </div>
+
+    <div id="deliveryInfo" style="display: none">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <span>Delivery Info</span>
+        </div>
+        <div class="panel-body">
+          <form name="addressForm">
+            <div class="form-group">
+              <input type="text" class="form-control" id="name"
+                        placeholder="Name">
+            </div>
+            <div class="form-group">
+              <input type="tel" class="form-control" id="phone"
+                        placeholder="Phone">
+            </div>
+            <div class="form-group">
+              <input type="email" class="form-control" id="email"
+                        placeholder="Email">
+            </div>
+            <button type="button" id="orderSubmit"
+                        class="btn btn-default">Create Order</button>
+          </form>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-body">
+        <div id="orderResults"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="orderBox" class="col-md-4 col-md-push-8"
+            style="display:none; position: fixed">
+    <div class="panel panel-primary">
+      <div class="panel-heading form-group-sm">
+        <h6 class="panel-title  form-group-sm">Order</h6>
+      </div>
+      <div class="panel-body">
+        <ul class="list-group" id="orderList">
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

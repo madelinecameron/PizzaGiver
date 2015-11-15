@@ -1,79 +1,71 @@
-/*  PizzaGiver
-    Copyright (C) 2014 - 2015, Madeline Cameron
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var index = require('./routes/index');
-var pay = require('./routes/pay');
-var serveStatic = require('serve-static');
-var make = require('./routes/make');
+var sequelize = require('sequelize');
+var handlebars  = require('express-handlebars');
 
-var app = express();
+module.exports = function(db, Order) {
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hjs');
+  var home = require('./controllers/home');
+  var make = require('./controllers/make');
+  var pay = require('./controllers/pay')(db, Order);
 
-// uncomment after placing your favicon in /public
-app.use(favicon(__dirname + '/public/images/favicon.ico'));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(serveStatic('/public', {maxAge: 86400}));
-app.use("/public", express.static(__dirname + '/public'));
+  var app = express();
 
-app.use('/', index);
-app.get('/make', make);
-app.get('/pay/:id', pay);
+  app.engine('handlebars', handlebars({
+    layoutsDir: __dirname + '/views/completes',
+    partialsDir: __dirname + '/views/partials'
+  }));
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
+  app.set('views', __dirname + '/views/completes');
+  app.set('view engine', 'handlebars');
+
+  // uncomment after placing your favicon in /public
+  //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+  app.use(logger('dev'));
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(cookieParser());
+  app.use(require('less-middleware')(path.join(__dirname, 'public')));
+  app.use(express.static(path.join(__dirname, 'public')));
+
+  app.use('/', home);
+  app.use('/make', make);
+  app.use('/pay', pay);
+
+  // catch 404 and forward to error handler
+  app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
-});
+  });
 
-// error handlers
+  // error handlers
 
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
+  // development error handler
+  // will print stacktrace
+  if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
+      res.status(err.status || 500);
+      res.render('error', {
+        message: err.message,
+        error: err
+      });
     });
-}
+  }
 
-// production error handler
-// no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+  // // production error handler
+  // // no stacktraces leaked to user
+  app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
-        message: err.message,
-        error: {}
+      message: err.message,
+      error: {}
     });
-});
+  });
 
-module.exports = app;
+  return app;
+}
