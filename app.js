@@ -4,14 +4,13 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var sequelize = require('sequelize');
 var handlebars  = require('express-handlebars');
 
-module.exports = function(db, Order) {
+module.exports = function(Order) {
 
   var home = require('./controllers/home');
   var make = require('./controllers/make');
-  var pay = require('./controllers/pay')(db, Order);
+  var pay = require('./controllers/pay')(Order);
 
   var app = express();
 

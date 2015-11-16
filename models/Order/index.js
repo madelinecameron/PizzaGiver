@@ -1,13 +1,8 @@
-var Sequelize = require('sequelize');
+var mongoose = require('mongoose'),
+    shortid = require('shortid'),
+    orderSchema = new mongoose.Schema({
+      id: { type: String, required: true, default: shortid.generate },
+      order: { type: mongoose.Schema.Types.Mixed, required: true }
+    });
 
-module.exports = function(db) {
-  return db.define('Order', {
-    id: {
-      type: Sequelize.UUID,
-      unique: true,
-      defaultValue: Sequelize.UUIDV4,
-      primaryKey: true
-    },
-    Order: Sequelize.JSON
-  });
-}
+module.exports = mongoose.model('Orders', orderSchema);

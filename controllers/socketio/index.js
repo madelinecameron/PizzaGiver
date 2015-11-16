@@ -1,9 +1,10 @@
 var pizzapi = require('pizzapi');
 var handlebars = require('handlebars');
 var fs = require('fs');
-var sequelize = require('sequelize');
+var mongoose = require('mongoose');
+var shortid = require('shortid');
 
-module.exports = function(server, db, Order) {
+module.exports = function(server, Order) {
   var optionsTranslation = {
     'Pepperoni': 'P',
     'Sausage': 'S'
@@ -75,21 +76,20 @@ module.exports = function(server, db, Order) {
         var newOrder = new pizzapi.Order(results.result);
         newOrder.price(function(results) {
           console.log(results.result.Order);
-          db.sync().then(function() {
-            Order.create({
-              Order: results.result.Order
-            }).then(function(order) {
-              var storedOrder = order.get({
-                plain: true
-              });
 
-              console.log(storedOrder.id);
-              socket.emit('order:create:success', {
-                baseURL: process.env.IS_PROD ? 'give.pizza' : 'localhost:5000',
-                orderID: storedOrder.id
-              });
-
-            });
+          Order.create({  //Create the order in the database
+              id: shortid.generate(),  // Internal Order ID != Dominos Order ID
+              order: results.result.Order,
+            }, function(err, order) {
+              if(err) {
+                console.log("Error: " + err);
+              }
+              else {
+                socket.emit('order:create:success', {
+                  baseURL: process.env.IS_PROD ? 'give.pizza' : 'localhost:5000',
+                  orderID: order.id
+                });
+              }
           });
         })
       })
