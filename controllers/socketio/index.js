@@ -3,6 +3,7 @@ var handlebars = require('handlebars');
 var fs = require('fs');
 var mongoose = require('mongoose');
 var shortid = require('shortid');
+var postmates = new require('postmates')('cus_KZUs7iPkgHZfwV', '94a3b01b-4d7e-4593-974f-b1d7161b06df')
 
 module.exports = function(server, Order) {
   var optionsTranslation = {
@@ -75,22 +76,43 @@ module.exports = function(server, Order) {
       order.validate(function(results) {
         var newOrder = new pizzapi.Order(results.result);
         newOrder.price(function(results) {
-          console.log(results.result.Order);
+          var orderInfo = results.result.Order;
+          var selectedStore = new pizzapi.Store({ ID: results.result.Order.StoreID });
+          selectedStore.getInfo(function(storeInfo) {
+            storeInfo = storeInfo.result;
 
-          Order.create({  //Create the order in the database
-              id: shortid.generate(),  // Internal Order ID != Dominos Order ID
-              order: results.result.Order,
-            }, function(err, order) {
-              if(err) {
-                console.log("Error: " + err);
-              }
-              else {
-                socket.emit('order:create:success', {
-                  baseURL: process.env.IS_PROD ? 'give.pizza' : 'localhost:5000',
-                  orderID: order.id
+            var postmatesQuote = postmates.quote({
+              pickup_address: storeInfo.StreetName + "," + storeInfo.City + "," + storeInfo.Region + "," + storeInfo.PostalCode,
+              dropoff_address: orderInfo.Address.Street + "," + orderInfo.Address.City + "," + orderInfo.Address.Region + "," + orderInfo.Address.PostalCode
+            }, function (err, result) {
+              if(!err) {
+                console.log(result)
+                Order.create({  //Create the order in the database
+                    id: shortid.generate(),  // Internal Order ID != Dominos Order ID
+                    order: orderInfo,
+                    deliveryInfo: result.body
+                  }, function(err, order) {
+                    if(!err) {
+                      socket.emit('order:create:success', {
+                        baseURL: process.env.IS_PROD ? 'give.pizza' : 'localhost:5000',
+                        orderID: order.id
+                      });
+                    }
+                    else {
+                      console.log(err)
+                      socket.emit('order:create:fail', {
+                        errorHTML: "<p>" + err.substring(0, 50) + "...</p>"
+                      });
+                    }
                 });
               }
-          });
+              else {
+                socket.emit('order:create:fail', {
+                  errorHTML: "<p>" + err.message + "</p>"
+                });
+              }
+            })
+          })
         })
       })
     });

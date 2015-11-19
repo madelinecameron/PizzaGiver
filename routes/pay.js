@@ -19,6 +19,7 @@ router.get('/pay/:id', function(req, res) {
               pepSelected = (order.order.Products[0].Options["P"] ? "pizzaSelected" : "");
               sausageSelected = (order.order.Products[0].Options["S"] ? "pizzaSelected" : "");
             }
+            console.log((order.deliveryInfo.fee / 100), order.order.Amounts.Customer.toFixed(2) + (order.deliveryInfo.fee / 100))
             res.render('pay', {
                 friendName: order.order.FirstName,
                 friendMsg: order.message,
@@ -27,6 +28,8 @@ router.get('/pay/:id', function(req, res) {
                 cheeseSelected: (order.order.Products[0].Options == {} ? "pizzaSelected" : ""),
                 size: order.order.Products[0].Code.substr(0, 2),  //First two letters are the size
                 orderTotal: order.order.Amounts.Customer.toFixed(2)
+                deliveryCost: (order.deliveryInfo.fee / 100)
+                total: order.order.Amounts.Customer.toFixed(2) + (order.deliveryInfo.fee / 100)
             });
         }
         else {

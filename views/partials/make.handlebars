@@ -15,15 +15,15 @@
 
   socket.on('order:create:success', function(res) {
     console.log(res.orderID);
-    $('#orderResults').html(("<b>Order URL: " + res.baseURL +
-        "/pay/" + res.orderID + "</b>"))
+    var orderURL = res.baseURL + "/pay/" + res.orderID
+    $('#orderResults').html(("<b>Order URL: <a href='" + orderURL + "'>" + orderURL + "</b>"))
         .parent()
         .parent()
         .addClass('alert-success');
   });
 
   socket.on('order:create:fail', function(res) {
-    $('#orderResults').html("Failure, try again")
+    $('#orderResults').html(res.errorHTML)
         .parent()
         .parent()
         .addClass('alert-failure');
@@ -50,8 +50,6 @@
       while($(topNode).prop('id') == "") {
         topNode = $(topNode).parent();
       }
-
-      console.log($(topNode));
 
       if(!$(topNode).hasClass('btn-primary')) {
         $(topNode).removeClass('btn-default').addClass('btn-primary');
