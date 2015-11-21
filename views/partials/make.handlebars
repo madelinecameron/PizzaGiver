@@ -26,7 +26,7 @@
     $('#orderResults').html(res.errorHTML)
         .parent()
         .parent()
-        .addClass('alert-failure');
+        .addClass('alert-danger');
   });
 
   $(function() {
@@ -41,6 +41,10 @@
       $('#addressSubmit').prop('disabled', true);
     });
 
+    $('#street, #city, #state, #zip').on('blur', function() {
+      $('#addressSubmit').prop('disabled', false);
+    })
+    
     //Register child clicks for all stores
     $('#storeList').on('click', '*', function(e) {
       e.stopPropagation();  //Stops event bubbling

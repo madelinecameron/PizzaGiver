@@ -56,7 +56,7 @@ module.exports = function(server, Order) {
         phone: data.phone,
         email: data.email
       });
-      var order = new pizzapi.Order({ customer: customer, storeID: data.storeID });
+      var order = new pizzapi.Order({ customer: customer, storeID: data.storeID, deliveryMethod: "Carryout" });
 
       for(var i = 0; i < data.order.length; i++) {
         var currentItem = data.order[i];
@@ -85,8 +85,8 @@ module.exports = function(server, Order) {
               pickup_address: storeInfo.StreetName + "," + storeInfo.City + "," + storeInfo.Region + "," + storeInfo.PostalCode,
               dropoff_address: orderInfo.Address.Street + "," + orderInfo.Address.City + "," + orderInfo.Address.Region + "," + orderInfo.Address.PostalCode
             }, function (err, result) {
-              if(!err) {
-                console.log(result)
+              console.log(err, result.body)
+              if(!err && result.body.kind !== "error") {
                 Order.create({  //Create the order in the database
                     id: shortid.generate(),  // Internal Order ID != Dominos Order ID
                     order: orderInfo,
@@ -108,7 +108,7 @@ module.exports = function(server, Order) {
               }
               else {
                 socket.emit('order:create:fail', {
-                  errorHTML: "<p>" + err.message + "</p>"
+                  errorHTML: "<p>" + result.body.message + "</p>"
                 });
               }
             })
